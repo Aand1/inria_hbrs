@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+
+
+	<!-- Select the world -->
+	<include file="$(find ensta_gazebo_worlds)/launch/scenario_1.launch" />
+       
+	<!--<include file="$(find gazebo_ros)/launch/empty_world.launch"/>-->
+	<!-- start pr2 robot -->
+  <include file="$(find pr2_gazebo)/launch/pr2.launch"/>
+
+
+
+
+</launch>

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+
+
+	<!-- Select the world -->
+	<include file="$(find ensta_gazebo_worlds)/launch/scenario_1.launch" />
+       
+  
+	<!-- start pr2 robot -->
+
+        <!-- send pr2 urdf to param server -->
+        <include file="$(find pr2_description)/robots/upload_pr2.launch" />
+
+
+
+
+</launch>
