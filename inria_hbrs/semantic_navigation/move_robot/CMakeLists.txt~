@@ -64,7 +64,6 @@ add_executable(move_robot_node
 )
 target_link_libraries(move_robot_node 
   ${catkin_LIBRARIES}
-  move_robot
   
 )
 #add_dependencies(move_robot_node move_robot)

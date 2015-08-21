@@ -75,7 +75,7 @@
 
         <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
 	       
-		<rosparam command="load" file="$(find pioneer3dx_2dnav)/config/laser_filter.yaml" />
+		<rosparam command="load" file="$(find pioneer3dx_navigation)/config/laser_filter.yaml" />
         </node>
 
 	<!--<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" launch-prefix="xterm -e gdb args"> -->
