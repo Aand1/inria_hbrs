@@ -64,19 +64,91 @@ namespace move_robot
 	//typedefs to help us out with the action server so that we don't hace to type so much
 	typedef actionlib::SimpleActionServer<move_base_msgs::MoveBaseAction> MoveRobotActionServer;
 
-  
+    /*
+     * @class MoveRobot
+     * @brief A class that uses the actionlib::ActionServer interface to move the robot to a geometric goal location.
+     */
 	class MoveRobot 
   {
 	public:
-		MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap_ros);
+	    /*
+         * @brief  Constructor for the MoveRobot object
+         * @param name The name of the class
+         * @param tf A reference to a TransformListener
+          @param planner_costmap A pointer to the global semantic costmap to be used by global planner
+         */
+		MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap);
+
+		/*
+         * @brief  Destructor - Cleans up
+         */
 		virtual ~MoveRobot();
+
+         /*
+          * @brief  Initialization function for the MoveRobot object
+          * @param  tf A reference to a TransformListener
+          * @param  planner_costmap A pointer to the global costmap to use for global planning
+          */
+		void initialize(costmap_2d::Costmap2DROS* planner_costmap);
+
+		/*
+         * @brief  Publish a path for visualization purposes
+         */
+        void publishPlan(const std::vector<geometry_msgs::PoseStamped>& path);
+	protected:
+		bool initialized_;
+		ros::Publisher plan_publisher_;
 		
 	private:
+
+		/*
+         * @brief  Make a new global plan
+         * @param  goal The goal to plan to
+         * @param  plan Will be filled in with the plan made by the planner
+         * @return  True if planning succeeds, false otherwise
+         */
+        bool makePlan(const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan);
+
+        /* @brief Separate thread to activate makePlan function. This thread runs periodically to while the robot is achieving its goal to deal with dynamic obstacles. 
+         */
+        void planThread();
+
+        void executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal);
+
+        bool isQuaternionValid(const geometry_msgs::Quaternion& q);
+		
+		geometry_msgs::PoseStamped goalToGlobalFrame(const geometry_msgs::PoseStamped& goal_pose_msg);
+
+		void goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal);
 		
 		tf::TransformListener& tf_;
 
-    MoveRobotActionServer* as_;
-    costmap_2d::Costmap2DROS* planner_costmap_ros_, *controller_costmap_ros_;
+        MoveRobotActionServer* as_;
+
+        /**
+         * @brief To store copies of global and local costmaps
+         */
+        costmap_2d::Costmap2DROS* planner_costmap_, *controller_costmap_;
+
+        boost::shared_ptr<nav_core::BaseGlobalPlanner> planner_;
+
+        ros::Publisher action_goal_pub_;
+        ros::Subscriber goal_sub_;
+
+        //set up plan triple buffer
+      	std::vector<geometry_msgs::PoseStamped>* planner_plan_;
+      	std::vector<geometry_msgs::PoseStamped>* latest_plan_;
+      	std::vector<geometry_msgs::PoseStamped>* controller_plan_;
+
+        //set up the planner's thread
+        bool runPlanner_;
+        boost::mutex planner_mutex_;
+        boost::condition_variable planner_cond_;
+        geometry_msgs::PoseStamped planner_goal_;
+        boost::thread* planner_thread_;
+
+        pluginlib::ClassLoader<nav_core::BaseGlobalPlanner> bgp_loader_;
+
 
 	};
 

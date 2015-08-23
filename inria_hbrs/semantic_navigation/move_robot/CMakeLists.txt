@@ -43,9 +43,10 @@ include_directories(
 )
 ## Declare a cpp library
 add_library(move_robot src/move_robot.cpp)
+add_library(move_robot_miscellaneous src/move_robot_miscellaneous.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(move_robot
+target_link_libraries(move_robot move_robot_miscellaneous
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
 )

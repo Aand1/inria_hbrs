@@ -43,6 +43,7 @@ include_directories(
 )
 ## Declare a cpp library
 add_library(move_robot src/move_robot.cpp)
+add_library(move_robot_miscellaneous src/move_robot_miscellaneous.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(move_robot
@@ -64,6 +65,7 @@ add_executable(move_robot_node
 )
 target_link_libraries(move_robot_node 
   ${catkin_LIBRARIES}
+  move_robot
   
 )
 #add_dependencies(move_robot_node move_robot)
