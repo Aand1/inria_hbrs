@@ -48,7 +48,9 @@ namespace move_robot
       as_(NULL),
       planner_costmap_(NULL),
       bgp_loader_("nav_core", "nav_core::BaseGlobalPlanner"),
-      runPlanner_(false)
+      runPlanner_(false),
+      planner_plan_(NULL), latest_plan_(NULL), controller_plan_(NULL),
+      initialized_(false)
     {
       initialize(planner_costmap);        
 
@@ -61,54 +63,6 @@ namespace move_robot
 
 		
 	}
-
-  void MoveRobot::initialize(costmap_2d::Costmap2DROS* planner_costmap)
-  {
-    //if(!initialized_)
-    {
-      ros::NodeHandle private_nh("~");
-      ros::NodeHandle nh;
-
-      planner_costmap_ = planner_costmap;
-
-      as_ = new MoveRobotActionServer(ros::NodeHandle(), "move_robot", boost::bind(&MoveRobot::executeCb, this, _1), false);
-
-      ros::NodeHandle action_nh("move_robot");
-      action_goal_pub_ = action_nh.advertise<move_base_msgs::MoveBaseActionGoal>("goal", 1);
-
-      ros::NodeHandle simple_nh("move_base_simple");
-      goal_sub_ = simple_nh.subscribe<geometry_msgs::PoseStamped>("goal", 1, boost::bind(&MoveRobot::goalCB, this, _1));
-
-      plan_publisher_ = private_nh.advertise<nav_msgs::Path>("plan", 1);
-
-      //initializing some parameters that will be global to the move robot 
-      std::string global_planner, local_planner;
-      private_nh.param("base_global_planner", global_planner, std::string("navfn/NavfnROS"));
-
-      //initialize the global planner
-      try 
-      {
-        planner_ = bgp_loader_.createInstance(global_planner);
-        planner_->initialize(bgp_loader_.getName(global_planner), planner_costmap_);
-      } catch (const pluginlib::PluginlibException& ex) 
-      {
-        ROS_FATAL("Failed to create the %s planner, are you sure it is properly registered and that the containing library is built? Exception: %s", global_planner.c_str(), ex.what());
-        exit(1);
-      }
-
-      //set up plan buffer
-      planner_plan_ = new std::vector<geometry_msgs::PoseStamped>();
-      //set up the planner's thread
-      planner_thread_ = new boost::thread(boost::bind(&MoveRobot::planThread, this));
-
-      //we're all set up now so we can start the action server
-      as_->start();
-
-
-  }
-
-
-  }
 
   bool MoveRobot::makePlan(const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan)
   {
@@ -136,13 +90,8 @@ namespace move_robot
     //if the planner fails or returns a zero length plan, planning failed
     if(!planner_->makePlan(start, goal, plan) || plan.empty())
     {
-      ROS_DEBUG_NAMED("move_base","Failed to find a  plan to point (%.2f, %.2f)", goal.pose.position.x, goal.pose.position.y);
+      ROS_DEBUG_NAMED("move_robot","Failed to find a  plan to point (%.2f, %.2f)", goal.pose.position.x, goal.pose.position.y);
       return false;
-    }
-
-    else
-    {
-      //ROS_INFO_STREAM("Got a plan");
     }
 
     return true;
@@ -154,24 +103,26 @@ namespace move_robot
   {
     ROS_INFO_STREAM("Starting planner thread...");
     ros::NodeHandle n;
-    //boost::unique_lock<boost::mutex> lock(planner_mutex_);
+    ros::Timer timer;
+    bool wait_for_wake = false;
 
     boost::unique_lock<boost::mutex> lock(planner_mutex_);
-    lock.unlock();
 
     while(n.ok())
     {
-      //check if we should run the planner
-      while(!runPlanner_)
+      //check if we should run the planner (the mutex is locked)
+      while(wait_for_wake || !runPlanner_)
       {
         //if we should not be running the planner then suspend this thread
-        //ROS_INFO_STREAM("Planner thread is suspending");
-        //planner_cond_.wait(lock);
-        
+        //ROS_DEBUG_NAMED("move_base_plan_thread","Planner thread is suspending");
+        planner_cond_.wait(lock);
+        wait_for_wake = false;
       }
-      ROS_INFO_STREAM("Planner thread running");
+
+      ros::Time start_time = ros::Time::now();
+
       geometry_msgs::PoseStamped temp_goal = planner_goal_;
-      //lock.unlock();
+      lock.unlock();
 
       //run planner
       planner_plan_->clear();
@@ -180,26 +131,43 @@ namespace move_robot
 
       if(gotPlan)
       {
-        std::vector<geometry_msgs::PoseStamped>* temp_plan = planner_plan_;
-
+        //std::vector<geometry_msgs::PoseStamped>* temp_plan = planner_plan_;
+        temp_plan = planner_plan_;
+        lock.lock();
         planner_plan_ = latest_plan_;
         latest_plan_ = temp_plan;
+        lock.unlock();
         
         //publish the plan for visualization purposes
-        publishPlan(*temp_plan);
+        publishPlan(*planner_plan_);
       }
+
+      //take the mutex for the next iteration
+      lock.lock();
+      ROS_INFO_STREAM(planner_frequency_);
+      //setup sleep interface for the planner
+      if(planner_frequency_ > 0)
+      {
+        ros::Duration sleep_time = (start_time + ros::Duration(1.0/planner_frequency_)) - ros::Time::now();
+        if (sleep_time > ros::Duration(0.0))
+        {
+          wait_for_wake = true;
+          timer = n.createTimer(sleep_time, &MoveRobot::wakePlanner, this);
+        }
+      }
+
     }
 
   }
 
   void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
   { 
-    ROS_INFO_STREAM("Got a goal");
+    
     if(!isQuaternionValid(move_robot_goal->target_pose.pose.orientation)){
       as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
       return;
     }
-    ROS_INFO_STREAM("Got a goal");
+    
     geometry_msgs::PoseStamped goal = goalToGlobalFrame(move_robot_goal->target_pose);
 
     //we have a goal so start the planner
@@ -262,17 +230,7 @@ namespace move_robot
 
   }
 
-  void MoveRobot::goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal)
-  {
-    ROS_INFO_STREAM("In ROS goal callback");
-    ROS_DEBUG_NAMED("move_base","In ROS goal callback, wrapping the PoseStamped in the action message and re-sending to the server.");
-    move_base_msgs::MoveBaseActionGoal action_goal;
-    action_goal.header.stamp = ros::Time::now();
-    action_goal.goal.target_pose = *goal;
-
-    action_goal_pub_.publish(action_goal);
-  }
-
+  
   
 
 	

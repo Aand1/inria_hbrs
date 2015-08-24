@@ -43,8 +43,19 @@
 
 namespace move_robot 
 {
-   bool MoveRobot::isQuaternionValid(const geometry_msgs::Quaternion& q)
-   {
+	void MoveRobot::goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal)
+    {
+	    ROS_INFO_STREAM("In ROS goal callback");
+	    ROS_DEBUG_NAMED("move_base","In ROS goal callback, wrapping the PoseStamped in the action message and re-sending to the server.");
+	    move_base_msgs::MoveBaseActionGoal action_goal;
+	    action_goal.header.stamp = ros::Time::now();
+	    action_goal.goal.target_pose = *goal;
+
+	    action_goal_pub_.publish(action_goal);
+    }
+
+    bool MoveRobot::isQuaternionValid(const geometry_msgs::Quaternion& q)
+    {
     	//first we need to check if the quaternion has nan's or infs
         if(!std::isfinite(q.x) || !std::isfinite(q.y) || !std::isfinite(q.z) || !std::isfinite(q.w))
         {
@@ -104,29 +115,39 @@ namespace move_robot
     }
 
 
-    void MoveRobot::publishPlan(const std::vector<geometry_msgs::PoseStamped>& path) {
-    /*if (!initialized_) {
-        ROS_ERROR(
-                "This planner has not been initialized yet, but it is being used, please call initialize() before use");
-        return;
-    }*/
+    void MoveRobot::publishPlan(const std::vector<geometry_msgs::PoseStamped>& path) 
+    {
+	    /*if (!initialized_) {
+	        ROS_ERROR(
+	                "This planner has not been initialized yet, but it is being used, please call initialize() before use");
+	        return;
+	    }*/
 
-    //create a message for the plan
-    nav_msgs::Path gui_path;
-    gui_path.poses.resize(path.size());
+	    //create a message for the plan
+	    nav_msgs::Path gui_path;
+	    gui_path.poses.resize(path.size());
 
-    if (!path.empty()) {
-        gui_path.header.frame_id = path[0].header.frame_id;
-        gui_path.header.stamp = path[0].header.stamp;
+	    if (!path.empty()) 
+	    {
+	        gui_path.header.frame_id = path[0].header.frame_id;
+	        gui_path.header.stamp = path[0].header.stamp;
+	    }
+
+	    // Extract the plan in world co-ordinates, we assume the path is all in the same frame
+	    for (unsigned int i = 0; i < path.size(); i++) 
+	    {
+	        gui_path.poses[i] = path[i];
+	    }
+
+	    plan_publisher_.publish(gui_path);
+
+	}
+
+	void MoveRobot::wakePlanner(const ros::TimerEvent& event)
+    {
+	    // we have slept long enough for rate
+	    planner_cond_.notify_one();
     }
-
-    // Extract the plan in world co-ordinates, we assume the path is all in the same frame
-    for (unsigned int i = 0; i < path.size(); i++) {
-        gui_path.poses[i] = path[i];
-    }
-
-    plan_publisher_.publish(gui_path);
-}
 
 
 

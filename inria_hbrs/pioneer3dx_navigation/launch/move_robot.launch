@@ -79,7 +79,7 @@
         </node>
 
 	<!--<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" launch-prefix="xterm -e gdb args"> -->
-        <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" launch-prefix="xterm -e gdb --args">
+        <node pkg="move_robot" type="move_robot" respawn="false" name="move_robot_node" output="screen" clear_params="true" launch-prefix="xterm -e gdb --args">
         <!--<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" > -->
        
     		<rosparam file="$(find pioneer3dx_navigation)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />

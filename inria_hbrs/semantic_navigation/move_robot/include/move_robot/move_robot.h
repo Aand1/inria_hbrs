@@ -95,6 +95,7 @@ namespace move_robot
          * @brief  Publish a path for visualization purposes
          */
         void publishPlan(const std::vector<geometry_msgs::PoseStamped>& path);
+        
 	protected:
 		bool initialized_;
 		ros::Publisher plan_publisher_;
@@ -112,6 +113,11 @@ namespace move_robot
         /* @brief Separate thread to activate makePlan function. This thread runs periodically to while the robot is achieving its goal to deal with dynamic obstacles. 
          */
         void planThread();
+
+        /*
+         * @brief To wake the planner at periodic intervals.
+         */
+        void wakePlanner(const ros::TimerEvent& event);
 
         void executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal);
 
@@ -135,9 +141,12 @@ namespace move_robot
         ros::Publisher action_goal_pub_;
         ros::Subscriber goal_sub_;
 
+        double planner_frequency_;
+
         //set up plan triple buffer
       	std::vector<geometry_msgs::PoseStamped>* planner_plan_;
       	std::vector<geometry_msgs::PoseStamped>* latest_plan_;
+      	std::vector<geometry_msgs::PoseStamped>* temp_plan;
       	std::vector<geometry_msgs::PoseStamped>* controller_plan_;
 
         //set up the planner's thread
