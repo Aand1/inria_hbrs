@@ -155,7 +155,6 @@ namespace move_robot
         //set up plan triple buffer
       	std::vector<geometry_msgs::PoseStamped>* planner_plan_;
       	std::vector<geometry_msgs::PoseStamped>* latest_plan_;
-      	std::vector<geometry_msgs::PoseStamped>* temp_plan;
       	std::vector<geometry_msgs::PoseStamped>* controller_plan_;
 
         //set up the planner's thread

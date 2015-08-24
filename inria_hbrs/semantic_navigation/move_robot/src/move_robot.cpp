@@ -66,102 +66,7 @@ namespace move_robot
 		
 	}
 
-  bool MoveRobot::makePlan(const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan)
-  {
-    boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(planner_costmap_->getCostmap()->getMutex()));
-
-    //make sure to set the plan to be empty initially
-    plan.clear();
-
-    //since this gets called on handle activate
-    if(planner_costmap_ == NULL) {
-      ROS_ERROR("Planner costmap ROS is NULL, unable to create global plan");
-      return false;
-    }
-
-    //get the starting pose of the robot
-    tf::Stamped<tf::Pose> global_pose;
-    if(!planner_costmap_->getRobotPose(global_pose)) {
-      ROS_WARN("Unable to get starting pose of robot, unable to create global plan");
-      return false;
-    }
-
-    geometry_msgs::PoseStamped start;
-    tf::poseStampedTFToMsg(global_pose, start);
-
-    //if the planner fails or returns a zero length plan, planning failed
-    if(!planner_->makePlan(start, goal, plan) || plan.empty())
-    {
-      ROS_DEBUG_NAMED("move_robot","Failed to find a  plan to point (%.2f, %.2f)", goal.pose.position.x, goal.pose.position.y);
-      return false;
-    }
-
-    return true;
-
-
-  }
-
-  void MoveRobot::planThread()
-  {
-    ROS_INFO_STREAM("Starting planner thread...");
-    ros::NodeHandle n;
-    ros::Timer timer;
-    bool wait_for_wake = false;
-
-    boost::unique_lock<boost::mutex> lock(planner_mutex_);
-
-    while(n.ok())
-    {
-      //check if we should run the planner (the mutex is locked)
-      while(wait_for_wake || !runPlanner_)
-      {
-        //if we should not be running the planner then suspend this thread
-        //ROS_DEBUG_NAMED("move_base_plan_thread","Planner thread is suspending");
-        planner_cond_.wait(lock);
-        wait_for_wake = false;
-      }
-
-      ros::Time start_time = ros::Time::now();
-
-      geometry_msgs::PoseStamped temp_goal = planner_goal_;
-      lock.unlock();
-
-      //run planner
-      planner_plan_->clear();
-
-      bool gotPlan = n.ok() && makePlan(temp_goal, *planner_plan_);
-
-      if(gotPlan)
-      {
-        //std::vector<geometry_msgs::PoseStamped>* temp_plan = planner_plan_;
-        temp_plan = planner_plan_;
-        lock.lock();
-        planner_plan_ = latest_plan_;
-        latest_plan_ = temp_plan;
-        lock.unlock();
-        
-        //publish the plan for visualization purposes
-        publishPlan(*latest_plan_);
-      }
-
-      //take the mutex for the next iteration
-      lock.lock();
-      ROS_INFO_STREAM(planner_frequency_);
-      //setup sleep interface for the planner
-      if(planner_frequency_ > 0)
-      {
-        ros::Duration sleep_time = (start_time + ros::Duration(1.0/planner_frequency_)) - ros::Time::now();
-        if (sleep_time > ros::Duration(0.0))
-        {
-          wait_for_wake = true;
-          timer = n.createTimer(sleep_time, &MoveRobot::wakePlanner, this);
-        }
-      }
-
-    }
-
-  }
-
+  
   bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
   {
 
@@ -244,10 +149,6 @@ namespace move_robot
       return;
 
     }
-
-
-
-
 
   }
 

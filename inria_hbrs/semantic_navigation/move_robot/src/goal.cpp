@@ -36,10 +36,10 @@
 *********************************************************************/
 
 #include <move_robot/move_robot.h>
-#include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <boost/thread.hpp>
-#include <geometry_msgs/Twist.h>
+//#include <cmath>
+//#include <boost/algorithm/string.hpp>
+//#include <boost/thread.hpp>
+//#include <geometry_msgs/Twist.h>
 
 namespace move_robot 
 {
