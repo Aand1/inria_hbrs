@@ -36,10 +36,6 @@
 *********************************************************************/
 
 #include <move_robot/move_robot.h>
-//#include <cmath>
-//#include <boost/algorithm/string.hpp>
-//#include <boost/thread.hpp>
-//#include <geometry_msgs/Twist.h>
 
 namespace move_robot 
 {
@@ -98,8 +94,12 @@ namespace move_robot
             planner_plan_ = new std::vector<geometry_msgs::PoseStamped>();
             latest_plan_ = new std::vector<geometry_msgs::PoseStamped>();
             controller_plan_ = new std::vector<geometry_msgs::PoseStamped>();
+            
             //set up the planner's thread
             planner_thread_ = new boost::thread(boost::bind(&MoveRobot::planThread, this));
+
+            //for comanding the base
+            vel_pub_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 
             //we're all set up now so we can start the action server
             as_->start();

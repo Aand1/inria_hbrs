@@ -36,23 +36,41 @@
 *********************************************************************/
 
 #include <move_robot/move_robot.h>
-//#include <cmath>
-//#include <boost/algorithm/string.hpp>
-//#include <boost/thread.hpp>
 #include <geometry_msgs/Twist.h>
 
 namespace move_robot 
 {
 	bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
     {
+    	//TO be able to publish velocity commands
+        geometry_msgs::Twist cmd_vel;
 
-        if(!controller_->setPlan(*latest_plan_))
-        {
-            //ABORT and SHUTDOWN COSTMAPS
-            ROS_ERROR("Failed to pass global plan to the controller, aborting.");
-            as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
-            return true;
-        }
+        //check that the observation buffers for the costmap are current, we don't want to drive blind
+       if(!controller_costmap_->isCurrent())
+       {
+           ROS_WARN("[%s]:Sensor data is out of date, we're not going to allow commanding of the base for safety",ros::this_node::getName().c_str());
+           //publishZeroVelocity();
+           return false;
+       }
+
+       boost::unique_lock<boost::mutex> lock(planner_mutex_);
+       controller_plan_ = latest_plan_;
+
+       //Give the global plan to the local planner(controller)
+       if(!controller_->setPlan(*latest_plan_))
+       {
+           //ABORT and SHUTDOWN COSTMAPS
+           ROS_ERROR("Failed to pass global plan to the controller, aborting.");
+           as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
+           return true;
+       }
+
+       //compute velocity commands to go from one pose to the next in global planner
+       if(controller_->computeVelocityCommands(cmd_vel))
+       {
+           //Send the velocity commands to the base 
+           vel_pub_.publish(cmd_vel);	
+       }
 
     }
 

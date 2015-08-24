@@ -147,7 +147,7 @@ namespace move_robot
         boost::shared_ptr<nav_core::BaseGlobalPlanner> planner_;
         boost::shared_ptr<nav_core::BaseLocalPlanner> controller_;
 
-        ros::Publisher action_goal_pub_;
+        ros::Publisher action_goal_pub_, vel_pub_;
         ros::Subscriber goal_sub_;
 
         double planner_frequency_;

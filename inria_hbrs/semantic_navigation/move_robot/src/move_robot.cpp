@@ -36,10 +36,6 @@
 *********************************************************************/
 
 #include <move_robot/move_robot.h>
-#include <cmath>
-#include <boost/algorithm/string.hpp>
-#include <boost/thread.hpp>
-#include <geometry_msgs/Twist.h>
 
 namespace move_robot 
 {
@@ -66,18 +62,6 @@ namespace move_robot
 		
 	}
 
-  
-  bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
-  {
-
-    if(!controller_->setPlan(*latest_plan_)){
-        //ABORT and SHUTDOWN COSTMAPS
-        ROS_ERROR("Failed to pass global plan to the controller, aborting.");
-        as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
-        return true;
-      }
-
-  }
 
   void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
   { 
