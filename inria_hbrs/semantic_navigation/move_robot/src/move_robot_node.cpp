@@ -35,13 +35,16 @@ int main(int argc, char** argv)
 {
 	ros::init(argc, argv, "move_robot_node");
 	tf::TransformListener tf(ros::Duration(10));
-    costmap_2d::Costmap2DROS* planner_costmap_ros;
+    costmap_2d::Costmap2DROS* planner_costmap_ros, *controller_costmap_ros_;
 
 
     //create the ros wrapper for the planner's costmap... and initializer a pointer we'll use with the underlying map
     planner_costmap_ros = new costmap_2d::Costmap2DROS("global_costmap", tf);
 
-	move_robot::MoveRobot move_robot(tf, planner_costmap_ros);
+    //create the ros wrapper for the controller's costmap... and initializer a pointer we'll use with the underlying map
+    controller_costmap_ros_ = new costmap_2d::Costmap2DROS("local_costmap", tf);
+
+	move_robot::MoveRobot move_robot(tf, planner_costmap_ros, controller_costmap_ros_);
 	
 	//ros::MultiThreadedSpinner s;	
 	ros::spin();

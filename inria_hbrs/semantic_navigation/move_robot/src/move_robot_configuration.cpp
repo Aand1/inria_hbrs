@@ -43,7 +43,7 @@
 
 namespace move_robot 
 {
-    void MoveRobot::initialize(costmap_2d::Costmap2DROS* planner_costmap)
+    void MoveRobot::initialize(costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap)
     {
       if(!initialized_)
       {
@@ -51,7 +51,8 @@ namespace move_robot
         ros::NodeHandle nh;
 
         planner_costmap_ = planner_costmap;
-
+        controller_costmap_ = controller_costmap;
+        
         as_ = new MoveRobotActionServer(ros::NodeHandle(), "move_robot", boost::bind(&MoveRobot::executeCb, this, _1), false);
 
         ros::NodeHandle action_nh("move_robot");
@@ -66,15 +67,30 @@ namespace move_robot
         std::string global_planner, local_planner;
         private_nh.param("base_global_planner", global_planner, std::string("navfn/NavfnROS"));
         private_nh.param("planner_frequency", planner_frequency_, 1.0);
+        private_nh.param("base_local_planner", local_planner, std::string("base_local_planner/TrajectoryPlannerROS"));
 
         //initialize the global planner
         try 
         {
           planner_ = bgp_loader_.createInstance(global_planner);
           planner_->initialize(bgp_loader_.getName(global_planner), planner_costmap_);
-        } catch (const pluginlib::PluginlibException& ex) 
+        } 
+        catch (const pluginlib::PluginlibException& ex) 
         {
           ROS_FATAL("Failed to create the %s planner, are you sure it is properly registered and that the containing library is built? Exception: %s", global_planner.c_str(), ex.what());
+          exit(1);
+        }
+
+        //create a local planner
+        try 
+        {
+          controller_ = blp_loader_.createInstance(local_planner);
+          //ROS_INFO("Created local_planner %s", local_planner.c_str());
+          controller_->initialize(blp_loader_.getName(local_planner), &tf_, controller_costmap_);
+        } 
+        catch (const pluginlib::PluginlibException& ex) 
+        {
+          ROS_FATAL("Failed to create the %s planner, are you sure it is properly registered and that the containing library is built? Exception: %s", local_planner.c_str(), ex.what());
           exit(1);
         }
 

@@ -43,16 +43,18 @@
 
 namespace move_robot 
 {
-    MoveRobot::MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap) :
+    MoveRobot::MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap) :
       tf_(tf),
       as_(NULL),
       planner_costmap_(NULL),
+      controller_costmap_(NULL),
       bgp_loader_("nav_core", "nav_core::BaseGlobalPlanner"),
+      blp_loader_("nav_core", "nav_core::BaseLocalPlanner"),
       runPlanner_(false),
       planner_plan_(NULL), latest_plan_(NULL), controller_plan_(NULL),
       initialized_(false)
     {
-      initialize(planner_costmap);        
+      initialize(planner_costmap, controller_costmap);        
 
     }
 
@@ -139,7 +141,7 @@ namespace move_robot
         lock.unlock();
         
         //publish the plan for visualization purposes
-        publishPlan(*planner_plan_);
+        publishPlan(*latest_plan_);
       }
 
       //take the mutex for the next iteration
@@ -160,6 +162,18 @@ namespace move_robot
 
   }
 
+  bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
+  {
+
+    if(!controller_->setPlan(*latest_plan_)){
+        //ABORT and SHUTDOWN COSTMAPS
+        ROS_ERROR("Failed to pass global plan to the controller, aborting.");
+        as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
+        return true;
+      }
+
+  }
+
   void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
   { 
     
@@ -176,6 +190,8 @@ namespace move_robot
     runPlanner_ = true;
     planner_cond_.notify_one();
     lock.unlock();
+
+    std::vector<geometry_msgs::PoseStamped> global_plan;
 
     ros::NodeHandle n;
     while(n.ok())
@@ -220,11 +236,16 @@ namespace move_robot
 
       }
 
+      //the real work on pursuing a goal using local planner
+      bool done = executeCycle(goal, global_plan);
+
       //if the node is killed then we'll abort and return
       as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on the goal because the node has been killed");
       return;
 
     }
+
+
 
 
 

@@ -77,7 +77,7 @@ namespace move_robot
          * @param tf A reference to a TransformListener
           @param planner_costmap A pointer to the global semantic costmap to be used by global planner
          */
-		MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap);
+		MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap);
 
 		/*
          * @brief  Destructor - Cleans up
@@ -89,12 +89,20 @@ namespace move_robot
           * @param  tf A reference to a TransformListener
           * @param  planner_costmap A pointer to the global costmap to use for global planning
           */
-		void initialize(costmap_2d::Costmap2DROS* planner_costmap);
+		void initialize(costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap);
 
 		/*
          * @brief  Publish a path for visualization purposes
          */
         void publishPlan(const std::vector<geometry_msgs::PoseStamped>& path);
+
+        /*
+         * @brief  Performs a control cycle
+         * @param goal A reference to the goal to pursue
+         * @param global_plan A reference to the global plan being used
+         * @return True if processing of the goal is done, false otherwise
+         */
+        bool executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan);
         
 	protected:
 		bool initialized_;
@@ -137,6 +145,7 @@ namespace move_robot
         costmap_2d::Costmap2DROS* planner_costmap_, *controller_costmap_;
 
         boost::shared_ptr<nav_core::BaseGlobalPlanner> planner_;
+        boost::shared_ptr<nav_core::BaseLocalPlanner> controller_;
 
         ros::Publisher action_goal_pub_;
         ros::Subscriber goal_sub_;
@@ -157,6 +166,7 @@ namespace move_robot
         boost::thread* planner_thread_;
 
         pluginlib::ClassLoader<nav_core::BaseGlobalPlanner> bgp_loader_;
+        pluginlib::ClassLoader<nav_core::BaseLocalPlanner> blp_loader_;
 
 
 	};
