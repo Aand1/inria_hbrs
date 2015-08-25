@@ -64,6 +64,12 @@ namespace move_robot
 	//typedefs to help us out with the action server so that we don't hace to type so much
 	typedef actionlib::SimpleActionServer<move_base_msgs::MoveBaseAction> MoveRobotActionServer;
 
+	enum MoveBaseState {
+      PLANNING,
+      CONTROLLING,
+      CLEARING
+    };
+
     /*
      * @class MoveRobot
      * @brief A class that uses the actionlib::ActionServer interface to move the robot to a geometric goal location.
@@ -77,7 +83,7 @@ namespace move_robot
          * @param tf A reference to a TransformListener
           @param planner_costmap A pointer to the global semantic costmap to be used by global planner
          */
-		MoveRobot(tf::TransformListener& tf, costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap);
+		MoveRobot(tf::TransformListener* tf, costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap);
 
 		/*
          * @brief  Destructor - Cleans up
@@ -89,7 +95,7 @@ namespace move_robot
           * @param  tf A reference to a TransformListener
           * @param  planner_costmap A pointer to the global costmap to use for global planning
           */
-		void initialize(costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap);
+		void initialize(tf::TransformListener* tf, costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap);
 
 		/*
          * @brief  Publish a path for visualization purposes
@@ -127,7 +133,18 @@ namespace move_robot
          */
         void wakePlanner(const ros::TimerEvent& event);
 
+        /*
+         * @brief  Publish a velocity command of zero to the base
+         */
+        void publishZeroVelocity();
+
         void executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal);
+
+        /*
+         * @brief  Reset the state of the move_robot action and send a zero velocity command to the base
+         */
+        void resetState();
+
 
         bool isQuaternionValid(const geometry_msgs::Quaternion& q);
 		
@@ -135,7 +152,7 @@ namespace move_robot
 
 		void goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal);
 		
-		tf::TransformListener& tf_;
+		tf::TransformListener* tf_;
 
         MoveRobotActionServer* as_;
 
@@ -147,10 +164,12 @@ namespace move_robot
         boost::shared_ptr<nav_core::BaseGlobalPlanner> planner_;
         boost::shared_ptr<nav_core::BaseLocalPlanner> controller_;
 
+        std::string robot_base_frame_, global_frame_;
+
         ros::Publisher action_goal_pub_, vel_pub_;
         ros::Subscriber goal_sub_;
 
-        double planner_frequency_;
+        double planner_frequency_, controller_frequency_, inscribed_radius_, circumscribed_radius_;
 
         //set up plan triple buffer
       	std::vector<geometry_msgs::PoseStamped>* planner_plan_;
@@ -166,6 +185,20 @@ namespace move_robot
 
         pluginlib::ClassLoader<nav_core::BaseGlobalPlanner> bgp_loader_;
         pluginlib::ClassLoader<nav_core::BaseLocalPlanner> blp_loader_;
+
+        bool new_global_plan_;
+
+
+        geometry_msgs::PoseStamped oscillation_pose_;
+        ros::Time last_valid_plan_, last_valid_control_, last_oscillation_reset_;
+        MoveBaseState state_;
+        double distance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
+        double oscillation_timeout_, oscillation_distance_;
+        double planner_patience_, controller_patience_;
+
+        boost::recursive_mutex configuration_mutex_;
+        bool setup_, p_freq_change_, c_freq_change_;
+        ros::Publisher current_goal_pub_;
 
 
 	};

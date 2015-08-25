@@ -44,7 +44,7 @@ int main(int argc, char** argv)
     //create the ros wrapper for the controller's costmap... and initializer a pointer we'll use with the underlying map
     controller_costmap_ros_ = new costmap_2d::Costmap2DROS("local_costmap", tf);
 
-	move_robot::MoveRobot move_robot(tf, planner_costmap_ros, controller_costmap_ros_);
+	move_robot::MoveRobot move_robot(&tf, planner_costmap_ros, controller_costmap_ros_);
 	
 	//ros::MultiThreadedSpinner s;	
 	ros::spin();

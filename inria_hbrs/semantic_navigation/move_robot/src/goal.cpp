@@ -97,7 +97,7 @@ namespace move_robot
 
         try
         {
-          tf_.transformPose(global_frame, goal_pose, global_pose);
+          tf_->transformPose(global_frame, goal_pose, global_pose);
         }
         catch(tf::TransformException& ex)
         {
@@ -111,39 +111,6 @@ namespace move_robot
     }
 
 
-    void MoveRobot::publishPlan(const std::vector<geometry_msgs::PoseStamped>& path) 
-    {
-	    /*if (!initialized_) {
-	        ROS_ERROR(
-	                "This planner has not been initialized yet, but it is being used, please call initialize() before use");
-	        return;
-	    }*/
-
-	    //create a message for the plan
-	    nav_msgs::Path gui_path;
-	    gui_path.poses.resize(path.size());
-
-	    if (!path.empty()) 
-	    {
-	        gui_path.header.frame_id = path[0].header.frame_id;
-	        gui_path.header.stamp = path[0].header.stamp;
-	    }
-
-	    // Extract the plan in world co-ordinates, we assume the path is all in the same frame
-	    for (unsigned int i = 0; i < path.size(); i++) 
-	    {
-	        gui_path.poses[i] = path[i];
-	    }
-
-	    plan_publisher_.publish(gui_path);
-
-	}
-
-	void MoveRobot::wakePlanner(const ros::TimerEvent& event)
-    {
-	    // we have slept long enough for rate
-	    planner_cond_.notify_one();
-    }
 
 
 

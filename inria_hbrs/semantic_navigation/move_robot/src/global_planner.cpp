@@ -38,12 +38,13 @@
 #include <move_robot/move_robot.h>
 #include <boost/thread.hpp>
 
+
 namespace move_robot 
 {
 
     void MoveRobot::planThread()
     {
-	    ROS_INFO_STREAM("Starting planner thread...");
+	    
 	    ros::NodeHandle n;
 	    ros::Timer timer;
 	    bool wait_for_wake = false;
@@ -69,6 +70,7 @@ namespace move_robot
 	        planner_plan_->clear();
 
 	        bool gotPlan = n.ok() && makePlan(temp_goal, *planner_plan_);
+	        
 
 	       if(gotPlan)
 	        {
@@ -76,11 +78,16 @@ namespace move_robot
 	            temp_plan = planner_plan_;
 	            lock.lock();
 	            planner_plan_ = latest_plan_;
-	            latest_plan_ = temp_plan;
+        		latest_plan_ = temp_plan;
+        		new_global_plan_ = true;
 	            lock.unlock();
 	        
 	            //publish the plan for visualization purposes
 	            publishPlan(*latest_plan_);
+
+	            //make sure we only start the controller if we still haven't reached the goal
+               if(runPlanner_)
+                 state_ = CONTROLLING;
 	        }
 
 	        //take the mutex for the next iteration

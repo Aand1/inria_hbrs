@@ -39,7 +39,7 @@
 
 namespace move_robot 
 {
-    void MoveRobot::initialize(costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap)
+    void MoveRobot::initialize(tf::TransformListener* tf, costmap_2d::Costmap2DROS* planner_costmap, costmap_2d::Costmap2DROS* controller_costmap)
     {
         if(!initialized_)
         {
@@ -48,6 +48,7 @@ namespace move_robot
 
             planner_costmap_ = planner_costmap;
             controller_costmap_ = controller_costmap;
+            tf_ = tf;
             
             as_ = new MoveRobotActionServer(ros::NodeHandle(), "move_robot", boost::bind(&MoveRobot::executeCb, this, _1), false);
 
@@ -64,7 +65,18 @@ namespace move_robot
             private_nh.param("base_global_planner", global_planner, std::string("navfn/NavfnROS"));
             private_nh.param("planner_frequency", planner_frequency_, 1.0);
             private_nh.param("base_local_planner", local_planner, std::string("base_local_planner/TrajectoryPlannerROS"));
+            private_nh.param("controller_frequency", controller_frequency_, 20.0);
 
+            private_nh.param("global_costmap/robot_base_frame", robot_base_frame_, std::string("base_link"));
+            private_nh.param("global_costmap/global_frame", global_frame_, std::string("/map"));
+
+            //we'll assume the radius of the robot to be consistent with what's specified for the costmaps
+            private_nh.param("local_costmap/inscribed_radius", inscribed_radius_, 0.325);
+            private_nh.param("local_costmap/circumscribed_radius", circumscribed_radius_, 0.46);
+
+            private_nh.param("planner_patience", planner_patience_, 5.0);
+            private_nh.param("controller_patience", controller_patience_, 15.0);
+            
             //initialize the global planner
             try 
             {
@@ -82,7 +94,7 @@ namespace move_robot
             {
                 controller_ = blp_loader_.createInstance(local_planner);
                 //ROS_INFO("Created local_planner %s", local_planner.c_str());
-                controller_->initialize(blp_loader_.getName(local_planner), &tf_, controller_costmap_);
+                controller_->initialize(blp_loader_.getName(local_planner), tf_, controller_costmap_);
             } 
             catch (const pluginlib::PluginlibException& ex) 
             {
@@ -94,6 +106,9 @@ namespace move_robot
             planner_plan_ = new std::vector<geometry_msgs::PoseStamped>();
             latest_plan_ = new std::vector<geometry_msgs::PoseStamped>();
             controller_plan_ = new std::vector<geometry_msgs::PoseStamped>();
+
+            //initially, we'll need to make a plan
+            state_ = PLANNING;
             
             //set up the planner's thread
             planner_thread_ = new boost::thread(boost::bind(&MoveRobot::planThread, this));
@@ -105,6 +120,9 @@ namespace move_robot
             as_->start();
 
             initialized_ = false;
+
+            //initially, we'll need to make a plan
+            state_ = PLANNING;
         }
     }
 

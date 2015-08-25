@@ -42,6 +42,7 @@ namespace move_robot
 {
 	bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
     {
+    	ROS_INFO_STREAM("Running controller");
     	//TO be able to publish velocity commands
         geometry_msgs::Twist cmd_vel;
 
@@ -53,26 +54,235 @@ namespace move_robot
            return false;
        }
 
-       boost::unique_lock<boost::mutex> lock(planner_mutex_);
-       controller_plan_ = latest_plan_;
-
-       //Give the global plan to the local planner(controller)
-       if(!controller_->setPlan(*latest_plan_))
+       //if we have a new plan then grab it and give it to the controller
+       if(new_global_plan_)
        {
-           //ABORT and SHUTDOWN COSTMAPS
-           ROS_ERROR("Failed to pass global plan to the controller, aborting.");
-           as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
-           return true;
-       }
+           //make sure to set the new plan flag to false
+           new_global_plan_ = false;
 
-       //compute velocity commands to go from one pose to the next in global planner
-       if(controller_->computeVelocityCommands(cmd_vel))
-       {
-           //Send the velocity commands to the base 
-           vel_pub_.publish(cmd_vel);	
-       }
+	       //do a pointer swap under mutex
+	       std::vector<geometry_msgs::PoseStamped>* temp_plan = controller_plan_;
+
+	       boost::unique_lock<boost::mutex> lock(planner_mutex_);
+	       controller_plan_ = latest_plan_;
+	       latest_plan_ = temp_plan;
+	       lock.unlock();
+
+	        //Give the global plan to the local planner(controller)
+	        if(!controller_->setPlan(*controller_plan_))
+	        {
+
+	            resetState();
+	            ROS_ERROR("Failed to pass global plan to the controller, aborting.");
+	            as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
+	            return true;
+	        }
+	    }
+
+	    //check to see if we've reached our goal
+        if(controller_->isGoalReached())
+        {
+	        ROS_DEBUG_NAMED("move_base","Goal reached!");
+
+	        resetState();	          
+
+	        //disable the planner thread
+	        boost::unique_lock<boost::mutex> lock(planner_mutex_);
+	        runPlanner_ = false;
+	        lock.unlock();
+  
+            as_->setSucceeded(move_base_msgs::MoveBaseResult(), "Goal reached.");
+            return true;
+        }
+
+        {
+            boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(controller_costmap_->getCostmap()->getMutex()));
+            //compute velocity commands to go from one pose to the next in global planner
+            if(controller_->computeVelocityCommands(cmd_vel))
+            {
+                //Send the velocity commands to the base 
+                vel_pub_.publish(cmd_vel);	
+            }
+            else
+            {
+            	boost::unique_lock<boost::mutex> lock(planner_mutex_);
+                runPlanner_ = true;
+                planner_cond_.notify_one();
+                lock.unlock();        
+            }
+
+        }
+
+        //we aren't done yet
+        return false;
+
+    } 
+
+
+    void MoveRobot::publishZeroVelocity()
+    {
+
+	    geometry_msgs::Twist cmd_vel;
+	    cmd_vel.linear.x = 0.0;
+	    cmd_vel.linear.y = 0.0;
+	    cmd_vel.angular.z = 0.0;
+	    vel_pub_.publish(cmd_vel);
 
     }
+
+
+
+
+/*    bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan){
+    boost::recursive_mutex::scoped_lock ecl(configuration_mutex_);
+    //we need to be able to publish velocity commands
+    geometry_msgs::Twist cmd_vel;
+
+    //update feedback to correspond to our curent position
+    tf::Stamped<tf::Pose> global_pose;
+    planner_costmap_->getRobotPose(global_pose);
+    geometry_msgs::PoseStamped current_position;
+    tf::poseStampedTFToMsg(global_pose, current_position);
+
+    //push the feedback out
+    move_base_msgs::MoveBaseFeedback feedback;
+    feedback.base_position = current_position;
+    as_->publishFeedback(feedback);
+
+    //check to see if we've moved far enough to reset our oscillation timeout
+    if(distance(current_position, oscillation_pose_) >= oscillation_distance_)
+    {
+      last_oscillation_reset_ = ros::Time::now();
+      oscillation_pose_ = current_position;
+
+    }
+
+    //check that the observation buffers for the costmap are current, we don't want to drive blind
+    if(!controller_costmap_->isCurrent()){
+      ROS_WARN("[%s]:Sensor data is out of date, we're not going to allow commanding of the base for safety",ros::this_node::getName().c_str());
+      publishZeroVelocity();
+      return false;
+    }
+
+    //if we have a new plan then grab it and give it to the controller
+    if(new_global_plan_){
+      //make sure to set the new plan flag to false
+      new_global_plan_ = false;
+
+      ROS_DEBUG_NAMED("move_base","Got a new plan...swap pointers");
+
+      //do a pointer swap under mutex
+      std::vector<geometry_msgs::PoseStamped>* temp_plan = controller_plan_;
+
+      boost::unique_lock<boost::mutex> lock(planner_mutex_);
+      controller_plan_ = latest_plan_;
+      latest_plan_ = temp_plan;
+      lock.unlock();
+      ROS_DEBUG_NAMED("move_base","pointers swapped!");
+
+      int size = planner_plan_->size();
+	  ROS_INFO_STREAM(size);
+	  
+      if(!controller_->setPlan(*controller_plan_)){
+        //ABORT and SHUTDOWN COSTMAPS
+        ROS_ERROR("Failed to pass global plan to the controller, aborting.");
+        resetState();
+
+        //disable the planner thread
+        lock.lock();
+        runPlanner_ = false;
+        lock.unlock();
+
+        as_->setAborted(move_base_msgs::MoveBaseResult(), "Failed to pass global plan to the controller.");
+        return true;
+      }
+
+      
+    }
+
+    //the move_base state machine, handles the control logic for navigation
+    switch(state_){
+      //if we are in a planning state, then we'll attempt to make a plan
+      case PLANNING:
+        {
+          boost::mutex::scoped_lock lock(planner_mutex_);
+          runPlanner_ = true;
+          planner_cond_.notify_one();
+        }
+        ROS_DEBUG_NAMED("move_base","Waiting for plan, in the planning state.");
+        break;
+
+      //if we're controlling, we'll attempt to find valid velocity commands
+      case CONTROLLING:
+        ROS_DEBUG_NAMED("move_base","In controlling state.");
+
+        //check to see if we've reached our goal
+        if(controller_->isGoalReached()){
+          ROS_DEBUG_NAMED("move_base","Goal reached!");
+          resetState();
+
+          //disable the planner thread
+          boost::unique_lock<boost::mutex> lock(planner_mutex_);
+          runPlanner_ = false;
+          lock.unlock();
+
+          as_->setSucceeded(move_base_msgs::MoveBaseResult(), "Goal reached.");
+          return true;
+        }
+
+        //check for an oscillation condition
+        if(oscillation_timeout_ > 0.0 &&
+            last_oscillation_reset_ + ros::Duration(oscillation_timeout_) < ros::Time::now())
+        {
+          publishZeroVelocity();
+          state_ = CLEARING;
+          
+        }
+        
+        {
+         boost::unique_lock<costmap_2d::Costmap2D::mutex_t> lock(*(controller_costmap_->getCostmap()->getMutex()));
+        
+        if(controller_->computeVelocityCommands(cmd_vel)){
+          ROS_DEBUG_NAMED( "move_base", "Got a valid command from the local planner: %.3lf, %.3lf, %.3lf",
+                           cmd_vel.linear.x, cmd_vel.linear.y, cmd_vel.angular.z );
+          last_valid_control_ = ros::Time::now();
+          //make sure that we send the velocity command to the base
+          vel_pub_.publish(cmd_vel);
+          
+        }
+        
+        }
+
+        break;
+
+      //we'll try to clear out space with any user-provided recovery behaviors
+      case CLEARING:
+        ROS_DEBUG_NAMED("move_base","In clearing/recovery state");
+        ROS_INFO_STREAM("clearing state");
+        //we'll invoke whatever recovery behavior we're currently on if they're enabled
+        
+        break;
+
+      default:
+        ROS_ERROR("This case should never be reached, something is wrong, aborting");
+        resetState();
+        //disable the planner thread
+        boost::unique_lock<boost::mutex> lock(planner_mutex_);
+        runPlanner_ = false;
+        lock.unlock();
+        as_->setAborted(move_base_msgs::MoveBaseResult(), "Reached a case that should not be hit in move_base. This is a bug, please report it.");
+        return true;
+    }
+
+    //we aren't done yet
+    return false;
+  }*/
+
+  double MoveRobot::distance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2)
+  {
+    return hypot(p1.pose.position.x - p2.pose.position.x, p1.pose.position.y - p2.pose.position.y);
+  }
+
 
 
 };
