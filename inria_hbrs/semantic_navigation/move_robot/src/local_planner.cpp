@@ -40,7 +40,7 @@
 
 namespace move_robot 
 {
-	bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
+	/*bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan)
     {
     	ROS_INFO_STREAM("Running controller");
     	//TO be able to publish velocity commands
@@ -116,7 +116,7 @@ namespace move_robot
         //we aren't done yet
         return false;
 
-    } 
+    } */
 
 
     void MoveRobot::publishZeroVelocity()
@@ -133,7 +133,7 @@ namespace move_robot
 
 
 
-/*    bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan){
+    bool MoveRobot::executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan){
     boost::recursive_mutex::scoped_lock ecl(configuration_mutex_);
     //we need to be able to publish velocity commands
     geometry_msgs::Twist cmd_vel;
@@ -276,7 +276,7 @@ namespace move_robot
 
     //we aren't done yet
     return false;
-  }*/
+  }
 
   double MoveRobot::distance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2)
   {

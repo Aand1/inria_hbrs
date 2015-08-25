@@ -249,7 +249,7 @@ namespace move_robot
 
           //publish the goal point to the visualizer
           ROS_DEBUG_NAMED("move_base","move_base has received a goal of x: %.2f, y: %.2f", goal.pose.position.x, goal.pose.position.y);
-          current_goal_pub_.publish(goal);
+          //current_goal_pub_.publish(goal);
 
           //make sure to reset our timeouts
           last_valid_control_ = ros::Time::now();
@@ -286,7 +286,7 @@ namespace move_robot
 
         //publish the goal point to the visualizer
         ROS_DEBUG_NAMED("move_base","The global frame for move_base has changed, new frame: %s, new goal position x: %.2f, y: %.2f", goal.header.frame_id.c_str(), goal.pose.position.x, goal.pose.position.y);
-        current_goal_pub_.publish(goal);
+        //current_goal_pub_.publish(goal);
 
         //make sure to reset our timeouts
         last_valid_control_ = ros::Time::now();
