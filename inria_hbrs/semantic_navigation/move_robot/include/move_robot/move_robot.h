@@ -145,6 +145,7 @@ namespace move_robot
          */
         void resetState();
 
+        double distance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
 
         bool isQuaternionValid(const geometry_msgs::Quaternion& q);
 		
@@ -192,7 +193,7 @@ namespace move_robot
         geometry_msgs::PoseStamped oscillation_pose_;
         ros::Time last_valid_plan_, last_valid_control_, last_oscillation_reset_;
         MoveBaseState state_;
-        double distance(const geometry_msgs::PoseStamped& p1, const geometry_msgs::PoseStamped& p2);
+        
         double oscillation_timeout_, oscillation_distance_;
         double planner_patience_, controller_patience_;
 

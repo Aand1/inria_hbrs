@@ -74,9 +74,6 @@ namespace move_robot
             private_nh.param("local_costmap/inscribed_radius", inscribed_radius_, 0.325);
             private_nh.param("local_costmap/circumscribed_radius", circumscribed_radius_, 0.46);
 
-            private_nh.param("planner_patience", planner_patience_, 5.0);
-            private_nh.param("controller_patience", controller_patience_, 15.0);
-            
             //initialize the global planner
             try 
             {
@@ -115,6 +112,7 @@ namespace move_robot
 
             //for comanding the base
             vel_pub_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+            current_goal_pub_ = private_nh.advertise<geometry_msgs::PoseStamped>("current_goal", 0 );
 
             //we're all set up now so we can start the action server
             as_->start();

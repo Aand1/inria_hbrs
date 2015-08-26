@@ -82,17 +82,9 @@ namespace move_robot
 	}
 
 
-/*  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
+  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
   { 
-    ros::Rate r(controller_frequency_);
-    r = ros::Rate(controller_frequency_);
-    if(c_freq_change_)
-    {
-      ROS_INFO("Setting controller frequency to %.2f", controller_frequency_);
-      
-      c_freq_change_ = false;
-    }
-    
+        
     if(!isQuaternionValid(move_robot_goal->target_pose.pose.orientation)){
       as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
       return;
@@ -163,18 +155,13 @@ namespace move_robot
       if(done)
           return;
 
-      r.sleep();
-      //make sure to sleep for the remainder of our cycle time
-      if(r.cycleTime() > ros::Duration(1 / controller_frequency_) && state_ == CONTROLLING)
-        ROS_WARN("Control loop missed its desired rate of %.4fHz... the loop actually took %.4f seconds", controller_frequency_, r.cycleTime().toSec());
-
-      //if the node is killed then we'll abort and return
-      as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on the goal because the node has been killed");
-      return;
-
     }
 
-  }*/
+    //if the node is killed then we'll abort and return
+    as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on the goal because the node has been killed");
+    return;
+
+  }
 
   void MoveRobot::resetState()
   {
@@ -187,7 +174,7 @@ namespace move_robot
   }
 
 
-  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal)
+/*  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal)
   {
     if(!isQuaternionValid(move_base_goal->target_pose.pose.orientation)){
       as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
@@ -206,23 +193,15 @@ namespace move_robot
     //current_goal_pub_.publish(goal);
     std::vector<geometry_msgs::PoseStamped> global_plan;
 
-    ros::Rate r(controller_frequency_);
+    
     
 
-    //we want to make sure that we reset the last time we had a valid plan and control
-    last_valid_control_ = ros::Time::now();
-    last_valid_plan_ = ros::Time::now();
-    last_oscillation_reset_ = ros::Time::now();
+    
 
     ros::NodeHandle n;
     while(n.ok())
     {
-      if(c_freq_change_)
-      {
-        ROS_INFO("Setting controller frequency to %.2f", controller_frequency_);
-        r = ros::Rate(controller_frequency_);
-        c_freq_change_ = false;
-      }
+      
 
       if(as_->isPreemptRequested()){
         if(as_->isNewGoalAvailable()){
@@ -251,22 +230,9 @@ namespace move_robot
           ROS_DEBUG_NAMED("move_base","move_base has received a goal of x: %.2f, y: %.2f", goal.pose.position.x, goal.pose.position.y);
           //current_goal_pub_.publish(goal);
 
-          //make sure to reset our timeouts
-          last_valid_control_ = ros::Time::now();
-          last_valid_plan_ = ros::Time::now();
-          last_oscillation_reset_ = ros::Time::now();
+          
         }
-        else {
-          //if we've been preempted explicitly we need to shut things down
-          resetState();
-
-          //notify the ActionServer that we've successfully preempted
-          ROS_DEBUG_NAMED("move_base","Move base preempting the current goal");
-          as_->setPreempted();
-
-          //we'll actually return from execute after preempting
-          return;
-        }
+        
       }
 
       //we also want to check if we've changed global frames because we need to transform our goal pose
@@ -288,10 +254,7 @@ namespace move_robot
         ROS_DEBUG_NAMED("move_base","The global frame for move_base has changed, new frame: %s, new goal position x: %.2f, y: %.2f", goal.header.frame_id.c_str(), goal.pose.position.x, goal.pose.position.y);
         //current_goal_pub_.publish(goal);
 
-        //make sure to reset our timeouts
-        last_valid_control_ = ros::Time::now();
-        last_valid_plan_ = ros::Time::now();
-        last_oscillation_reset_ = ros::Time::now();
+        
       }
 
       //for timing that gives real time even in simulation
@@ -304,15 +267,9 @@ namespace move_robot
       if(done)
         return;
 
-      //check if execution of the goal has completed in some way
+      
 
-      ros::WallDuration t_diff = ros::WallTime::now() - start;
-      ROS_DEBUG_NAMED("move_base","Full control cycle time: %.9f\n", t_diff.toSec());
-
-      r.sleep();
-      //make sure to sleep for the remainder of our cycle time
-      if(r.cycleTime() > ros::Duration(1 / controller_frequency_) && state_ == CONTROLLING)
-        ROS_WARN("Control loop missed its desired rate of %.4fHz... the loop actually took %.4f seconds", controller_frequency_, r.cycleTime().toSec());
+      
     }
 
     //wake up the planner thread so that it can exit cleanly
@@ -324,7 +281,7 @@ namespace move_robot
     //if the node is killed then we'll abort and return
     as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on the goal because the node has been killed");
     return;
-  }
+  } */
 
 
   

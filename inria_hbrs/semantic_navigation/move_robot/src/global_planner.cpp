@@ -85,9 +85,6 @@ namespace move_robot
 	            //publish the plan for visualization purposes
 	            publishPlan(*latest_plan_);
 
-	            //make sure we only start the controller if we still haven't reached the goal
-               if(runPlanner_)
-                 state_ = CONTROLLING;
 	        }
 
 	        //take the mutex for the next iteration
