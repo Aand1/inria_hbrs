@@ -178,7 +178,7 @@ namespace move_robot
       	std::vector<geometry_msgs::PoseStamped>* controller_plan_;
 
         //set up the planner's thread
-        bool runPlanner_;
+        bool runPlanner_, runController_;
         boost::mutex planner_mutex_;
         boost::condition_variable planner_cond_;
         geometry_msgs::PoseStamped planner_goal_;

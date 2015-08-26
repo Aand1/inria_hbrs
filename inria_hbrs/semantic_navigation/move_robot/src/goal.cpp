@@ -41,7 +41,7 @@ namespace move_robot
 {
 	void MoveRobot::goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal)
     {
-	    ROS_INFO_STREAM("In ROS goal callback");
+	    //ROS_INFO_STREAM("New goal available");
 	    ROS_DEBUG_NAMED("move_base","In ROS goal callback, wrapping the PoseStamped in the action message and re-sending to the server.");
 	    move_base_msgs::MoveBaseActionGoal action_goal;
 	    action_goal.header.stamp = ros::Time::now();

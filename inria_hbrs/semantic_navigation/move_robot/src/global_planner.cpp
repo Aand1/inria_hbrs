@@ -85,6 +85,9 @@ namespace move_robot
 	            //publish the plan for visualization purposes
 	            publishPlan(*latest_plan_);
 
+	            if(runPlanner_)
+          			state_ = CONTROLLING;
+
 	        }
 
 	        //take the mutex for the next iteration
