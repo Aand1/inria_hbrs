@@ -49,7 +49,8 @@ namespace move_robot
       planner_plan_(NULL), latest_plan_(NULL), controller_plan_(NULL),
       initialized_(false),
       new_global_plan_(false),
-      c_freq_change_(false)
+      c_freq_change_(false),
+      goal_reached(false)
     {
       initialize(tf, planner_costmap, controller_costmap);        
 
@@ -284,17 +285,58 @@ namespace move_robot
         
       }
 
+      if(new_global_plan_)
+      {
+        state_ = CONTROLLING;
+      }
+
+      if(goal_reached == true)
+      {
+        state_ = STOP;
+      }
+
       //for timing that gives real time even in simulation
-      ros::WallTime start = ros::WallTime::now();
+      //ros::WallTime start = ros::WallTime::now();
 
       //the real work on pursuing a goal is done here
-      bool done = executeCycle(goal, global_plan);
+      //bool done = executeCycle(goal, global_plan);
 
       //if we're done, then we'll return from execute
-      if(done)
-        return;
+      //if(done)
+      //  return;
 
-      
+      switch(state_)
+      {
+        case PLANNING:
+        {
+          boost::mutex::scoped_lock lock(planner_mutex_);
+          runPlanner_ = true;
+          planner_cond_.notify_one();
+        }
+        //ROS_DEBUG_NAMED("move_base","Waiting for plan, in the planning state.");
+        break;
+
+        case STOP:
+
+        break;
+
+        //if we're controlling, we'll attempt to find valid velocity commands
+        case CONTROLLING:
+          bool done = executeCycle(goal, global_plan);
+          if(done)
+            return;
+
+        break;
+
+        
+        
+
+
+
+
+
+
+      }
 
       
     }

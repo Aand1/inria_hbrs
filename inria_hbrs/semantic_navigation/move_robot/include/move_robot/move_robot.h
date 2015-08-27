@@ -67,7 +67,7 @@ namespace move_robot
 	enum MoveBaseState {
       PLANNING,
       CONTROLLING,
-      CLEARING
+      STOP
     };
 
     /*
@@ -200,6 +200,7 @@ namespace move_robot
         boost::recursive_mutex configuration_mutex_;
         bool setup_, p_freq_change_, c_freq_change_;
         ros::Publisher current_goal_pub_;
+        bool goal_reached;
 
 
 	};

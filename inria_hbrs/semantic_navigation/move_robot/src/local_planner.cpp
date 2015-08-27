@@ -164,7 +164,7 @@ namespace move_robot
     }
     
     //if we have a new plan then grab it and give it to the controller
-    if(new_global_plan_){
+    //if(new_global_plan_){
       //make sure to set the new plan flag to false
       new_global_plan_ = false;
 
@@ -197,15 +197,15 @@ namespace move_robot
       }
 
       
-    }
+    //}
 
     //the move_base state machine, handles the control logic for navigation
-    if(state_ == CONTROLLING){
+    //if(state_ == CONTROLLING){
       
       //if we're controlling, we'll attempt to find valid velocity commands
       
-        ROS_DEBUG_NAMED("move_base","In controlling state.");
-        ROS_INFO_STREAM("Control state running");
+        //ROS_DEBUG_NAMED("move_base","In controlling state.");
+        //ROS_INFO_STREAM("Control state running");
 
         //check to see if we've reached our goal
         if(controller_->isGoalReached()){
@@ -214,21 +214,13 @@ namespace move_robot
           resetState();
 
           //disable the planner thread
-          boost::unique_lock<boost::mutex> lock(planner_mutex_);
-          runPlanner_ = false;
-          lock.unlock();
+          //boost::unique_lock<boost::mutex> lock(planner_mutex_);
+          //runPlanner_ = false;
+          //lock.unlock();
+          goal_reached = true;
 
           as_->setSucceeded(move_base_msgs::MoveBaseResult(), "Goal reached.");
           return true;
-        }
-
-        //check for an oscillation condition
-        if(oscillation_timeout_ > 0.0 &&
-            last_oscillation_reset_ + ros::Duration(oscillation_timeout_) < ros::Time::now())
-        {
-          publishZeroVelocity();
-          state_ = CLEARING;
-          
         }
         
         {
@@ -242,31 +234,9 @@ namespace move_robot
           vel_pub_.publish(cmd_vel);
           
         }
-        else {
-          ROS_DEBUG_NAMED("move_base", "The local planner could not find a valid plan.");
-          ros::Time attempt_end = last_valid_control_ + ros::Duration(controller_patience_);
+        
 
-          //check if we've tried to find a valid control for longer than our time limit
-          if(ros::Time::now() > attempt_end){
-            //we'll move into our obstacle clearing mode
-            publishZeroVelocity();
-            state_ = CLEARING;
-            
-          }
-          else{
-            //otherwise, if we can't find a valid control, we'll go back to planning
-            last_valid_plan_ = ros::Time::now();
-            state_ = PLANNING;
-            publishZeroVelocity();
-
-            //enable the planner thread in case it isn't running on a clock
-            boost::unique_lock<boost::mutex> lock(planner_mutex_);
-            runPlanner_ = true;
-            planner_cond_.notify_one();
-            lock.unlock();
-          }
-        }
-        }
+        
 
         
 
