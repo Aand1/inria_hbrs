@@ -67,7 +67,7 @@ namespace move_robot
 	enum MoveBaseState {
       PLANNING,
       CONTROLLING,
-      STOP
+      WAITING
     };
 
     /*

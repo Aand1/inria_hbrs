@@ -218,6 +218,7 @@ namespace move_robot
           //runPlanner_ = false;
           //lock.unlock();
           goal_reached = true;
+          state_ = WAITING;
 
           as_->setSucceeded(move_base_msgs::MoveBaseResult(), "Goal reached.");
           return true;

@@ -83,7 +83,7 @@ namespace move_robot
 	}
 
 
-  /*void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
+  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_robot_goal)
   { 
     //ROS_INFO_STREAM("In executecb");    
     if(!isQuaternionValid(move_robot_goal->target_pose.pose.orientation)){
@@ -92,85 +92,117 @@ namespace move_robot
     }
     
     geometry_msgs::PoseStamped goal = goalToGlobalFrame(move_robot_goal->target_pose);
-
-    //we have a goal so start the planner
-    boost::unique_lock<boost::mutex> lock(planner_mutex_);
-    planner_goal_ = goal;
-    runPlanner_ = true;
-    planner_cond_.notify_one();
-    lock.unlock();
+    current_goal_pub_.publish(goal);
 
     std::vector<geometry_msgs::PoseStamped> global_plan;
-
-    ros::Rate r(controller_frequency_);
 
     ros::NodeHandle n;
     while(n.ok())
     {
-      if(c_freq_change_)
-      {
-        ROS_INFO("Setting controller frequency to %.2f", controller_frequency_);
-        r = ros::Rate(controller_frequency_);
-        c_freq_change_ = false;
-      }
       
       if(as_->isPreemptRequested())
       {
-        if(as_->isNewGoalAvailable())
-        {
-          //if we're active and a new goal is available, we'll accept it, but we won't shut anything down
-          move_base_msgs::MoveBaseGoal new_goal = *as_->acceptNewGoal();
-
-          if(!isQuaternionValid(new_goal.target_pose.pose.orientation))
+          if(as_->isNewGoalAvailable())
           {
-            as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
+            //if we're active and a new goal is available, we'll accept it, but we won't shut anything down
+            move_base_msgs::MoveBaseGoal new_goal = *as_->acceptNewGoal();
+
+            if(!isQuaternionValid(new_goal.target_pose.pose.orientation))
+            {
+              as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
+              return;
+            }
+            //ROS_INFO_STREAM("Got a goal");
+            goal = goalToGlobalFrame(new_goal.target_pose);
+
+            //Reset state for the next execution cycle
+            state_ = PLANNING;
+
+
+          }
+
+          else 
+          {
+            //if we've been preempted explicitly we need to shut things down
+            resetState();
+
+            //notify the ActionServer that we've successfully preempted
+            ROS_DEBUG_NAMED("move_base","Move base preempting the current goal");
+            as_->setPreempted();
+
+            //we'll actually return from execute after preempting
             return;
           }
-          //ROS_INFO_STREAM("Got a goal");
-          goal = goalToGlobalFrame(new_goal.target_pose);
-
-          //we'll make sure that we reset our state for the next execution cycle
-          
-          
-
-          //we have a new goal so make sure the planner is awake
-          lock.lock();
-          planner_goal_ = goal;
-          runPlanner_ = true;
-          planner_cond_.notify_one();
-          lock.unlock();
-        }
-
-        else {
-          //if we've been preempted explicitly we need to shut things down
-          resetState();
-
-          //notify the ActionServer that we've successfully preempted
-          ROS_DEBUG_NAMED("move_base","Move base preempting the current goal");
-          as_->setPreempted();
-
-          //we'll actually return from execute after preempting
-          return;
-        }
 
       }
 
       //we also want to check if we've changed global frames because we need to transform our goal pose
       if(goal.header.frame_id != planner_costmap_->getGlobalFrameID())
       {
-        //ROS_INFO_STREAM("Got a goal");
-        goal = goalToGlobalFrame(goal);
+          //ROS_INFO_STREAM("Got a goal");
+          goal = goalToGlobalFrame(goal);
 
-        //we have a new goal so make sure the planner is awake
+          state_ = PLANNING;
+
+      /*  //we have a new goal so make sure the planner is awake
         lock.lock();
         planner_goal_ = goal;
         runPlanner_ = true;
         planner_cond_.notify_one();
-        lock.unlock();
+        lock.unlock();*/
 
       }
 
-      //the real work on pursuing a goal using local planner   
+      if(new_global_plan_)
+      {
+        state_ = CONTROLLING;
+      }
+
+      switch(state_)
+      {
+          case PLANNING:
+          {
+              //we have a goal so start the planner
+              boost::unique_lock<boost::mutex> lock(planner_mutex_);
+              planner_goal_ = goal;
+              runPlanner_ = true;
+              planner_cond_.notify_one();
+              lock.unlock();
+          }
+          break;
+
+          case CONTROLLING:
+          {
+              bool done = executeCycle(goal, global_plan);
+
+              if(done)
+              {
+                  return;
+              }
+
+          }
+          break;
+
+          case WAITING:
+          {
+              resetState();
+
+              //disable the planner thread
+              boost::unique_lock<boost::mutex> lock(planner_mutex_);
+              runPlanner_ = false;
+              lock.unlock();
+              
+
+          }
+          break;
+
+      }
+
+    
+
+
+
+    /*  //the real work on pursuing a goal using local planner   
       bool done = executeCycle(goal, global_plan);
       
 
@@ -180,15 +212,16 @@ namespace move_robot
       r.sleep();
       //make sure to sleep for the remainder of our cycle time
       if(r.cycleTime() > ros::Duration(1 / controller_frequency_))
-        ROS_WARN("Control loop missed its desired rate of %.4fHz... the loop actually took %.4f seconds", controller_frequency_, r.cycleTime().toSec());
+        ROS_WARN("Control loop missed its desired rate of %.4fHz... the loop actually took %.4f seconds", controller_frequency_, r.cycleTime().toSec());*/
 
     }
 
     //if the node is killed then we'll abort and return
     as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on the goal because the node has been killed");
+    resetState();
     return;
 
-  }*/
+  }
 
   void MoveRobot::resetState()
   {
@@ -202,7 +235,7 @@ namespace move_robot
   }
 
 
-  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal)
+/*  void MoveRobot::executeCb(const move_base_msgs::MoveBaseGoalConstPtr& move_base_goal)
   {
     if(!isQuaternionValid(move_base_goal->target_pose.pose.orientation)){
       as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
@@ -350,7 +383,7 @@ namespace move_robot
     //if the node is killed then we'll abort and return
     as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on the goal because the node has been killed");
     return;
-  } 
+  } */
 
 
   
