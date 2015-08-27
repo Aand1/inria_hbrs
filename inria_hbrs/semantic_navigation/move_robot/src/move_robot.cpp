@@ -90,8 +90,11 @@ namespace move_robot
       return;
     }
 
+    ROS_INFO("move_robot action has received a new goal");
     geometry_msgs::PoseStamped goal = goalToGlobalFrame(move_robot_goal->target_pose);
-    //current_goal_pub_.publish(goal);
+    current_goal_pub_.publish(goal);
+
+    state_ = PLANNING;
 
     std::vector<geometry_msgs::PoseStamped> global_plan;
 
@@ -99,25 +102,6 @@ namespace move_robot
     ros::NodeHandle n;
     while(n.ok())
     {
-
-      if(as_->isNewGoalAvailable())
-      {
-          ROS_INFO("This action has received a new goal");
-          
-          move_base_msgs::MoveBaseGoal new_goal = *as_->acceptNewGoal();
-
-          if(!isQuaternionValid(new_goal.target_pose.pose.orientation))
-          {
-            as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
-            return;
-          }
-            
-          goal = goalToGlobalFrame(new_goal.target_pose);
-          current_goal_pub_.publish(goal);
-
-          //Reset state for the next execution cycle
-          state_ = PLANNING;
-      }
 
       if(as_->isPreemptRequested())
       {
@@ -131,7 +115,8 @@ namespace move_robot
               as_->setAborted(move_base_msgs::MoveBaseResult(), "Aborting on goal because it was sent with an invalid quaternion");
               return;
             }
-            
+
+            ROS_INFO("move_robot action has received a new goal");
             goal = goalToGlobalFrame(new_goal.target_pose);
             current_goal_pub_.publish(goal);
 
@@ -178,6 +163,7 @@ namespace move_robot
               runPlanner_ = true;
               planner_cond_.notify_one();
               lock.unlock();
+
           }
           break;
 
@@ -201,13 +187,7 @@ namespace move_robot
 
           case STOP:
           {
-              resetState();
-
-              //disable the planner thread
-              boost::unique_lock<boost::mutex> lock(planner_mutex_);
-              runPlanner_ = false;
-              lock.unlock();
-              
+              resetState();          
 
           }
           break;
@@ -228,9 +208,9 @@ namespace move_robot
       // Disable the planner thread
       boost::unique_lock<boost::mutex> lock(planner_mutex_);
       runPlanner_ = false;
-      state_ = PLANNING;
       lock.unlock();
 
+      //Stop th erobot by sending zero velocitiy commands
       publishZeroVelocity();
   }
 
