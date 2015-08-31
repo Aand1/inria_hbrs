@@ -86,7 +86,7 @@ namespace move_robot
 	            publishPlan(*latest_plan_);
 
 	            //if(runPlanner_)
-          			//state_ = CONTROLLING;
+          		//	state_ = CONTROLLING;
 
 	        }
 

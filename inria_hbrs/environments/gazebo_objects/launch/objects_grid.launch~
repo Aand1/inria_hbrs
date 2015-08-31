@@ -2,7 +2,7 @@
 <launch>
 
     <!-- send world urdf to param server -->
-    <param name="object_description" command="$(find xacro)/xacro.py $(find gazebo_objects)/common/objects/objects_grid.urdf.xacro" /> 
+    <param name="object_description" command="$(find xacro)/xacro.py $(find ensta_gazebo_objects)/common/objects/objects_grid.urdf.xacro" /> 
 	
     <!-- spawn uploaded object model -->
     <node pkg="gazebo_ros" type="spawn_model" name="box1" args="-urdf -param object_description -model box1 -x -3.0 -y 0.0 -z 0.0" respawn="false" output="screen" /> 

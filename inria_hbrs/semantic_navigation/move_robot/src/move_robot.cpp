@@ -210,7 +210,7 @@ namespace move_robot
       runPlanner_ = false;
       lock.unlock();
 
-      //Stop th erobot by sending zero velocitiy commands
+      //Stop th erobot by sending zero velocity
       publishZeroVelocity();
   }
 

@@ -105,7 +105,7 @@ namespace move_robot
             controller_plan_ = new std::vector<geometry_msgs::PoseStamped>();
 
             //initially, we'll need to make a plan
-            state_ = PLANNING;
+            //state_ = PLANNING;
             
             //set up the planner's thread
             planner_thread_ = new boost::thread(boost::bind(&MoveRobot::planThread, this));
