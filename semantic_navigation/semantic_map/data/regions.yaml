@@ -1,0 +1,316 @@
+- 
+  instance: 'livingroom-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 0.0
+          y: 0.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 0.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 5.0
+          z: 0.0
+        -
+          x: 0.0
+          y: 5.0
+          z: 0.0 
+  semantics: 
+    category: 'Room' 
+    sub_category: 'LivingRoom' 
+
+- 
+  instance: 'kitchen-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 395.0
+          y: 0.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 0.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 400.0
+          z: 0.0
+        -
+          x: 395.0
+          y: 400.0
+          z: 0.0  
+  semantics: 
+    category: 'Room' 
+    sub_category: 'Kitchen' 
+
+- 
+  instance: 'diningroom-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 0.0
+          y: 395.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 395.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 400.0
+          z: 0.0
+        -
+          x: 0.0
+          y: 400.0
+          z: 0.0  
+  semantics: 
+    category: 'Room' 
+    sub_category: 'DiningRoom' 
+
+- 
+  instance: 'door-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 0.0
+          y: 0.0
+          z: 0.0
+        -
+          x: 5.0
+          y: 0.0
+          z: 0.0
+        -
+          x: 5.0
+          y: 400.0
+          z: 0.0
+        -
+          x: 0.0
+          y: 400.0
+          z: 0.0  
+  semantics: 
+    category: 'Door' 
+    sub_category: ''
+
+- 
+  instance: 'door-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 0.0
+          y: 237.0
+          z: 0.0
+        -
+          x: 200.0
+          y: 237.0
+          z: 0.0
+        -
+          x: 200.0
+          y: 243.0
+          z: 0.0
+        -
+          x: 0.0
+          y: 243.0
+          z: 0.0  
+  semantics: 
+    category: 'Door' 
+    sub_category: '' 
+ 
+- 
+  instance: 'door-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 220.0
+          y: 237.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 237.0
+          z: 0.0
+        -
+          x: 400.0
+          y: 243.0
+          z: 0.0
+        -
+          x: 220.0
+          y: 243.0
+          z: 0.0  
+  semantics: 
+    category: 'Door' 
+    sub_category: '' 
+
+- 
+  instance: 'door-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 140.0
+          y: 210.0
+          z: 0.0
+        -
+          x: 140.0
+          y: 240.0
+          z: 0.0
+        -
+          x: 120.0
+          y: 240.0
+          z: 0.0
+        -
+          x: 120.0
+          y: 210.0
+          z: 0.0  
+  semantics: 
+    category: 'Door' 
+    sub_category: '' 
+
+- 
+  instance: 'door-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 250.0
+          y: 170.0
+          z: 0.0
+        -
+          x: 250.0
+          y: 240.0
+          z: 0.0
+        -
+          x: 230.0
+          y: 240.0
+          z: 0.0
+        -
+          x: 230.0
+          y: 170.0
+          z: 0.0  
+  semantics: 
+    category: 'Door' 
+    sub_category: '' 
+
+- 
+  instance: 'door-01'
+  geometry: 
+    pose: 
+      position: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      orientation: 
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 0.0
+    bounding_box: 
+      vertices: 
+        -
+          x: 70.0
+          y: 280.0
+          z: 0.0
+        -
+          x: 130.0
+          y: 280.0
+          z: 0.0
+        -
+          x: 130.0
+          y: 340.0
+          z: 0.0
+        -
+          x: 70.0
+          y: 340.0
+          z: 0.0  
+  semantics: 
+    category: 'Door' 
+    sub_category: '' 
+
+

@@ -1,0 +1,7 @@
+# An action for pushing an object
+
+
+geometry_msgs/PoseStamped target_pose
+---
+---
+geometry_msgs/PoseStamped base_position

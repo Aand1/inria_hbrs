@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+        <node pkg="semantic_localization" type="semantic_localization_node" respawn="false" name="semantic_localization_node" output="screen" clear_params="true">
+
+               
+  	</node>
+
+</launch>
+

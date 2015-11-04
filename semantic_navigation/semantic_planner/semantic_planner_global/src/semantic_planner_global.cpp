@@ -1,0 +1,566 @@
+/*********************************************************************
+*
+* Software License Agreement (BSD License)
+*
+* Copyright (c) 2008, Willow Garage, Inc.
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+*
+* * Redistributions of source code must retain the above copyright
+* notice, this list of conditions and the following disclaimer.
+* * Redistributions in binary form must reproduce the above
+* copyright notice, this list of conditions and the following
+* disclaimer in the documentation and/or other materials provided
+* with the distribution.
+* * Neither the name of the Willow Garage nor the names of its
+* contributors may be used to endorse or promote products derived
+* from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+* "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+* LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+* FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+* COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.
+*
+* Author: Niranjan Deshpande
+*********************************************************************/
+
+#include "pluginlib/class_list_macros.h"
+#include "semantic_planner_global/semantic_planner_global.h"
+#include <semantic_planner_global/quadratic_calculator.h>
+#include <semantic_planner_global/astar.h>
+#include <semantic_planner_global/dijkstra.h>
+#include <semantic_planner_global/grid_path.h>
+#include <semantic_planner_global/gradient_path.h>
+#include <boost/algorithm/string.hpp>
+#include <boost/thread.hpp>
+#include "std_msgs/String.h"
+
+#include <global_planner/dijkstra.h>
+#include <global_planner/astar.h>
+#include <global_planner/grid_path.h>
+#include <global_planner/gradient_path.h>
+#include <global_planner/quadratic_calculator.h>
+
+//Registering semantic_planner_global as a plugin of BaseGlobalPlanner
+//PLUGINLIB_EXPORT_CLASS(semantic_planner::SemanticPlannerGlobal, nav_core::BaseGlobalPlanner);
+
+using std::vector;
+
+using namespace semantic_planner;
+
+SemanticPlannerGlobal::SemanticPlannerGlobal()
+{
+}
+
+SemanticPlannerGlobal::SemanticPlannerGlobal(tf::TransformListener* tf) :
+    tf_(NULL),
+    global_costmap_(NULL), 
+    initialized_(false),
+    new_goal_(false)
+    {
+    	//initialize the planner
+    	initialize(tf);
+	}
+
+
+SemanticPlannerGlobal::~SemanticPlannerGlobal()
+{
+}
+
+void SemanticPlannerGlobal::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_ros) 
+{
+    
+}
+
+void SemanticPlannerGlobal::initialize(tf::TransformListener* tf)
+{
+	if (!initialized_) 
+	{
+		ros::NodeHandle private_nh("~");
+
+		tf_ = tf;
+
+		//create the ros wrapper for the planner's costmap... and initializer a pointer we'll use with the underlying map
+        global_costmap_ = new costmap_2d::Costmap2DROS("global_costmap", *tf_);
+        global_costmap_->stop();
+		frame_id_ = global_costmap_->getGlobalFrameID();
+
+		unsigned int cx = global_costmap_->getCostmap()->getSizeInCellsX(), cy = global_costmap_->getCostmap()->getSizeInCellsY();
+
+		convert_offset_ = 0.0;
+
+        reset();
+
+		/*p_calc_ = new QuadraticCalculator(cx, cy);
+
+		planner_ = new AStarExpansion(p_calc_, cx, cy);
+
+		//SemanticDijkstra* de = new SemanticDijkstra(p_calc_, cx, cy, global_costmap_->getCostmap());
+		//planner_ = de;
+
+		path_maker_ = new GridPath(p_calc_);*/
+
+		//publish_plan_visualization_ = private_nh.advertise<nav_msgs::Path>("plan", 1);
+
+		p_calc_ = new QuadraticCalculator(cx, cy);
+		//DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
+		//planner_ = de;
+		planner_ = new AStarExpansion(p_calc_, cx, cy);
+		path_maker_ = new GridPath(p_calc_);
+
+
+		plan_pub_ = private_nh.advertise<nav_msgs::Path>("global_plan", 1, true);
+
+		private_nh.param("allow_unknown", allow_unknown_, true);
+        planner_->setHasUnknown(allow_unknown_);
+        private_nh.param("planner_window_x", planner_window_x_, 10.0);
+        private_nh.param("planner_window_y", planner_window_y_, 10.0);
+        private_nh.param("default_tolerance", default_tolerance_, 1.0);
+        private_nh.param("publish_scale", publish_scale_, 100);
+
+        double costmap_pub_freq;
+        private_nh.param("planner_costmap_publish_frequency", costmap_pub_freq, 0.0);
+
+        //set up plan triple buffer
+    	planner_plan_ = new std::vector<geometry_msgs::PoseStamped>();
+        latest_plan_ = new std::vector<geometry_msgs::PoseStamped>();
+
+        //get the tf prefix
+        ros::NodeHandle prefix_nh;
+        tf_prefix_ = tf::getPrefixParam(prefix_nh);
+
+        //subscriber for goals as move_object_actions::Goal messages over a topic
+        ros::NodeHandle simple_nh("semantic_planner_global");
+        goal_sub_ = simple_nh.subscribe<move_object_actions::PushObjectGoals>("goal", 1, boost::bind(&SemanticPlannerGlobal::goalCb, this, _1));
+
+        trigger_sub_ = simple_nh.subscribe<std_msgs::Bool>("trigger", 1, boost::bind(&SemanticPlannerGlobal::triggerCb, this, _1));
+
+        ros::NodeHandle private_nh_("move_base_simple");
+        pose_sub_ = private_nh_.subscribe<geometry_msgs::PoseStamped>("goal", 1, &SemanticPlannerGlobal::poseCallback, this);
+
+        dsrv_ = new dynamic_reconfigure::Server<semantic_planner_global::SemanticPlannerGlobalConfig>(ros::NodeHandle("~/"));
+        dynamic_reconfigure::Server<semantic_planner_global::SemanticPlannerGlobalConfig>::CallbackType cb = boost::bind(&SemanticPlannerGlobal::reconfigureCB, this, _1, _2);
+        dsrv_->setCallback(cb);
+
+        initialized_ = true;
+
+	}
+}
+
+void SemanticPlannerGlobal::reconfigureCB(semantic_planner_global::SemanticPlannerGlobalConfig& config, uint32_t level) 
+{
+    planner_->setLethalCost(config.lethal_cost);
+    path_maker_->setLethalCost(config.lethal_cost);
+    planner_->setNeutralCost(config.neutral_cost);
+    planner_->setFactor(config.cost_factor);
+    //publish_potential_ = config.publish_potential;
+    //orientation_filter_->setMode(config.orientation_mode);
+}
+
+bool SemanticPlannerGlobal::makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan)
+{
+
+	return makePlan(start, goal, default_tolerance_, plan);
+
+}
+
+bool SemanticPlannerGlobal::makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, double tolerance, std::vector<geometry_msgs::PoseStamped>& plan) 
+{
+	//ROS_INFO_STREAM("Generating plan");
+	boost::mutex::scoped_lock lock(mutex_);
+    if (!initialized_) 
+    {
+    	ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
+        return false;
+    }
+
+    //clear the plan, just in case
+    plan.clear();
+
+    ros::NodeHandle n;
+    std::string global_frame = "/map";
+
+    //until tf can handle transforming things that are way in the past... we'll require the goal to be in our global frame
+    if (tf::resolve(tf_prefix_, goal.header.frame_id) != tf::resolve(tf_prefix_, global_frame)) {
+        ROS_ERROR(
+                "The goal pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", tf::resolve(tf_prefix_, global_frame).c_str(), tf::resolve(tf_prefix_, goal.header.frame_id).c_str());
+        return false;
+    }
+
+    if (tf::resolve(tf_prefix_, start.header.frame_id) != tf::resolve(tf_prefix_, global_frame)) {
+        ROS_ERROR(
+                "The start pose passed to this planner must be in the %s frame.  It is instead in the %s frame.", tf::resolve(tf_prefix_, global_frame).c_str(), tf::resolve(tf_prefix_, start.header.frame_id).c_str());
+        return false;
+    }
+
+    double wx = start.pose.position.x;
+    double wy = start.pose.position.y;
+
+    unsigned int start_x_i, start_y_i, goal_x_i, goal_y_i;
+    double start_x, start_y, goal_x, goal_y;
+
+    if (!global_costmap_->getCostmap()->worldToMap(wx, wy, start_x_i, start_y_i)) {
+        ROS_WARN("The robot's start position is off the global costmap. Planning will always fail, are you sure the robot has been properly localized?");
+        return false;
+    }
+    worldToMap(wx, wy, start_x, start_y);
+    
+    wx = goal.pose.position.x;
+    wy = goal.pose.position.y;
+
+    if (!global_costmap_->getCostmap()->worldToMap(wx, wy, goal_x_i, goal_y_i)) {
+        ROS_WARN_THROTTLE(1.0, "The goal sent to the global planner is off the global costmap. Planning will always fail to this goal.");
+        return false;
+    }
+    worldToMap(wx, wy, goal_x, goal_y);
+
+    //clear the starting cell within the costmap because we know it can't be an obstacle
+    tf::Stamped<tf::Pose> start_pose;
+    tf::poseStampedMsgToTF(start, start_pose);
+    clearRobotCell(start_pose, start_x_i, start_y_i);
+
+    //Set the window for the planner
+    int nx = global_costmap_->getCostmap()->getSizeInCellsX(), ny = global_costmap_->getCostmap()->getSizeInCellsY();
+
+    //make sure to resize the underlying array that Navfn uses
+    p_calc_->setSize(nx, ny);
+    planner_->setSize(nx, ny);
+    path_maker_->setSize(nx, ny);
+    potential_array_ = new float[nx * ny];
+
+    outlineMap(global_costmap_->getCostmap()->getCharMap(), nx, ny, costmap_2d::LETHAL_OBSTACLE);
+
+    bool found_legal = planner_->calculatePotentials(global_costmap_->getCostmap()->getCharMap(), start_x, start_y, goal_x, goal_y, nx * ny * 2, potential_array_);
+
+    if (found_legal) 
+    {
+        //extract the plan
+        if (getPlanFromPotential(start_x, start_y, goal_x, goal_y, goal, plan)) 
+        {
+            //make sure the goal we push on has the same timestamp as the rest of the plan
+            geometry_msgs::PoseStamped goal_copy = goal;
+            goal_copy.header.stamp = ros::Time::now();
+            plan.push_back(goal_copy);
+        } 
+        else 
+        {
+            ROS_ERROR("Failed to get a plan from potential when a legal potential was found. This shouldn't happen.");
+        }
+    }
+    else
+    {
+        ROS_ERROR("Failed to get a plan.");
+    }
+
+    //publish the plan for visualization purposes
+    //ROS_INFO_STREAM("Publishing plan");
+    publishPlan(plan);
+    delete potential_array_;
+
+    return !plan.empty();
+
+    
+}
+
+void SemanticPlannerGlobal::publishPlan(const std::vector<geometry_msgs::PoseStamped>& path) {
+    if (!initialized_) {
+        ROS_ERROR(
+                "This planner has not been initialized yet, but it is being used, please call initialize() before use");
+        return;
+    }
+
+    //create a message for the plan
+    nav_msgs::Path gui_path;
+    gui_path.poses.resize(path.size());
+
+    if (!path.empty()) {
+        gui_path.header.frame_id = path[0].header.frame_id;
+        gui_path.header.stamp = path[0].header.stamp;
+    }
+
+    // Extract the plan in world co-ordinates, we assume the path is all in the same frame
+    for (unsigned int i = 0; i < path.size(); i++) {
+        gui_path.poses[i] = path[i];
+    }
+
+    plan_pub_.publish(gui_path);
+}
+
+
+void SemanticPlannerGlobal::mapToWorld(double mx, double my, double& wx, double& wy) 
+{
+    wx = global_costmap_->getCostmap()->getOriginX() + (mx+convert_offset_) * global_costmap_->getCostmap()->getResolution();
+    wy = global_costmap_->getCostmap()->getOriginY() + (my+convert_offset_) * global_costmap_->getCostmap()->getResolution();
+}
+
+bool SemanticPlannerGlobal::worldToMap(double wx, double wy, double& mx, double& my) 
+{
+    double origin_x = global_costmap_->getCostmap()->getOriginX(), origin_y = global_costmap_->getCostmap()->getOriginY();
+    double resolution = global_costmap_->getCostmap()->getResolution();
+
+    if (wx < origin_x || wy < origin_y)
+        return false;
+
+    mx = (wx - origin_x) / resolution - convert_offset_;
+    my = (wy - origin_y) / resolution - convert_offset_;
+
+    if (mx < global_costmap_->getCostmap()->getSizeInCellsX() && my < global_costmap_->getCostmap()->getSizeInCellsY())
+        return true;
+
+    return false;
+}
+
+bool SemanticPlannerGlobal::getPlanFromPotential(double start_x, double start_y, double goal_x, double goal_y, const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan) 
+{
+    if (!initialized_) 
+    {
+        ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
+        return false;
+    }
+
+    std::string global_frame = "/map";
+
+    //clear the plan, just in case
+    plan.clear();
+
+    std::vector<std::pair<float, float> > path;
+
+    if (!path_maker_->getPath(potential_array_, start_x, start_y, goal_x, goal_y, path)) 
+    {
+        ROS_ERROR("NO PATH!");
+        return false;
+    }
+
+    ros::Time plan_time = ros::Time::now();
+    for (int i = path.size() -1; i>=0; i--) 
+    {
+        std::pair<float, float> point = path[i];
+        //convert the plan to world coordinates
+        double world_x, world_y;
+        mapToWorld(point.first, point.second, world_x, world_y);
+
+        geometry_msgs::PoseStamped pose;
+        pose.header.stamp = plan_time;
+        pose.header.frame_id = global_frame;
+        pose.pose.position.x = world_x;
+        pose.pose.position.y = world_y;
+        pose.pose.position.z = 0.0;
+        pose.pose.orientation.x = 0.0;
+        pose.pose.orientation.y = 0.0;
+        pose.pose.orientation.z = 0.0;
+        pose.pose.orientation.w = 1.0;
+        plan.push_back(pose);
+    }
+
+    return !plan.empty();
+}
+
+
+void SemanticPlannerGlobal::clearRobotCell(const tf::Stamped<tf::Pose>& global_pose, unsigned int mx, unsigned int my) {
+    if (!initialized_) {
+        ROS_ERROR("This planner has not been initialized yet, but it is being used, please call initialize() before use");
+        return;
+    }
+
+    //set the associated costs in the cost map to be free
+    global_costmap_->getCostmap()->setCost(mx, my, costmap_2d::FREE_SPACE);
+}
+
+void SemanticPlannerGlobal::outlineMap(unsigned char* costarr, int nx, int ny, unsigned char value) {
+    unsigned char* pc = costarr;
+    for (int i = 0; i < nx; i++)
+        *pc++ = value;
+    pc = costarr + (ny - 1) * nx;
+    for (int i = 0; i < nx; i++)
+        *pc++ = value;
+    pc = costarr;
+    for (int i = 0; i < ny; i++, pc += nx)
+        *pc = value;
+    pc = costarr + nx - 1;
+    for (int i = 0; i < ny; i++, pc += nx)
+        *pc = value;
+}
+
+bool SemanticPlannerGlobal::executeCb(const std_msgs::BoolConstPtr& run_planner)
+{
+	if(run_planner)
+	{
+        global_costmap_->start();
+
+		ROS_INFO_STREAM("Semantic Planner Global received goal");
+		tf::Stamped<tf::Pose> object_global_pose;
+		geometry_msgs::PoseStamped object_start_pose;
+		geometry_msgs::PoseStamped object_goal_pose;
+		makePlan(object_start_pose, object_goal_pose, *planner_plan_);
+
+		global_costmap_->stop();
+
+
+	}
+
+}
+/*
+void SemanticPlannerGlobal::goalCb(const move_object_actions::Goal::ConstPtr& goal)
+{
+	ROS_INFO_STREAM("Semantic Planner Global received goal");
+	move_object_actions::Goal goal_temp = *goal;
+	//goal_temp.goal.header.frame_id = "map";
+	//goal_temp.goal.header.stamp = ros::Time::now();
+
+	//ROS_INFO_STREAM("Semantic Planner Global received goal");
+
+	//object_goal_pose_ = goal_temp.goal;
+	//object_goal_pose_ = goalToGlobalFrame(goal_temp.goal);
+
+	//ROS_INFO_STREAM(object_goal_pose_);
+	object_goal_pose_.header.frame_id = "map";
+    object_goal_pose_.header.stamp = ros::Time::now();
+    //object_goal_pose_.pose.position.x = 1.0;
+    //object_goal_pose_.pose.orientation.w = 1.0;
+    object_goal_pose_.pose.position.x = goal_temp.goal.pose.position.x;
+    object_goal_pose_.pose.position.y = goal_temp.goal.pose.position.y;
+    object_goal_pose_.pose.orientation.w = goal_temp.goal.pose.orientation.w;
+
+    new_goal_ = true;
+
+} */  
+
+void SemanticPlannerGlobal::goalCb(const move_object_actions::PushObjectGoals::ConstPtr& goal)
+{
+	//ROS_INFO_STREAM("Semantic Planner Global received goal");
+	move_object_actions::PushObjectGoals goal_temp = *goal;
+	//goal_temp.goal.header.frame_id = "map";
+	//goal_temp.goal.header.stamp = ros::Time::now();
+
+	//ROS_INFO_STREAM("Semantic Planner Global received goal");
+
+	//object_goal_pose_ = goal_temp.goal;
+	//object_goal_pose_ = goalToGlobalFrame(goal_temp.goal);
+
+	//ROS_INFO_STREAM(object_goal_pose_);
+	object_goal_pose_.header.frame_id = "map";
+    object_goal_pose_.header.stamp = ros::Time::now();
+    //object_goal_pose_.pose.position.x = 1.0;
+    //object_goal_pose_.pose.orientation.w = 1.0;
+    object_goal_pose_.pose.position.x = goal_temp.push_object_goal.pose.position.x;
+    object_goal_pose_.pose.position.y = goal_temp.push_object_goal.pose.position.y;
+    object_goal_pose_.pose.orientation.w = goal_temp.push_object_goal.pose.orientation.w;
+
+    new_goal_ = true;
+
+}    
+
+void SemanticPlannerGlobal::triggerCb(const std_msgs::Bool::ConstPtr& trigger)
+{
+	//ROS_INFO_STREAM("Semantic Planner Global received trigger");
+
+	if(trigger->data == true)
+	{
+        global_costmap_->start();
+
+		tf::Stamped<tf::Pose> global_pose;
+		geometry_msgs::PoseStamped start;
+		geometry_msgs::PoseStamped goal;
+
+		global_costmap_->getRobotPose(global_pose);
+		tf::poseStampedTFToMsg(global_pose, start);
+		//ROS_INFO_STREAM(start);
+		//we'll send a goal to the robot to move 1 meter forward
+    /*    goal.header.frame_id = "map";
+        goal.header.stamp = ros::Time::now();
+        goal.pose.position.x = 1.0;
+        goal.pose.orientation.w = 1.0;*/
+	//	geometry_msgs::PoseStamped goal_current = goalToGlobalFrame(goal);
+
+		//tf::poseStampedTFToMsg(global_pose, start);
+		//ROS_INFO_STREAM(start);
+		
+	/*	start.header.stamp = global_pose.stamp_;
+		start.header.frame_id = global_pose.frame_id_;
+        start.pose.position.x = global_pose.getOrigin().x();
+        start.pose.position.y = global_pose.getOrigin().y();
+        start.pose.position.z = global_pose.getOrigin().z();
+        start.pose.orientation.x = global_pose.getRotation().x();
+        start.pose.orientation.y = global_pose.getRotation().y();
+        start.pose.orientation.z = global_pose.getRotation().z();
+        start.pose.orientation.w = global_pose.getRotation().w();*/
+
+        //start.header.stamp = ros::Time::now();
+		//start.header.frame_id = "map";
+        //start.pose.position.x = 1.00;
+        //start.pose.position.y = 0.0;
+        //start.pose.orientation.w = 1.0;
+
+
+		
+		makePlan(start, object_goal_pose_, *planner_plan_);
+
+        //reset();
+
+	}
+
+    else if (trigger->data == false)
+    {
+        reset();
+    }
+
+}
+
+  void SemanticPlannerGlobal::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& goal) {
+  	//object_goal_pose_ = *goal;
+    tf::Stamped<tf::Pose> global_pose;
+    global_costmap_->getRobotPose(global_pose);
+    vector<geometry_msgs::PoseStamped> path;
+    geometry_msgs::PoseStamped start;
+    start.header.stamp = global_pose.stamp_;
+    start.header.frame_id = global_pose.frame_id_;
+    start.pose.position.x = global_pose.getOrigin().x();
+    start.pose.position.y = global_pose.getOrigin().y();
+    start.pose.position.z = global_pose.getOrigin().z();
+    start.pose.orientation.x = global_pose.getRotation().x();
+    start.pose.orientation.y = global_pose.getRotation().y();
+    start.pose.orientation.z = global_pose.getRotation().z();
+    start.pose.orientation.w = global_pose.getRotation().w();
+    //makePlan(start, object_goal_pose_, *planner_plan_);
+}
+
+geometry_msgs::PoseStamped SemanticPlannerGlobal::goalToGlobalFrame(const geometry_msgs::PoseStamped& goal_pose_msg)
+{
+    std::string global_frame = global_costmap_->getGlobalFrameID();
+    tf::Stamped<tf::Pose> goal_pose, global_pose;
+    poseStampedMsgToTF(goal_pose_msg, goal_pose);
+
+    //just get the latest available transform... for accuracy they should send
+    //goals in the frame of the planner
+    goal_pose.stamp_ = ros::Time();
+
+    try{
+      tf_->transformPose(global_frame, goal_pose, global_pose);
+    }
+    catch(tf::TransformException& ex){
+      ROS_WARN("Failed to transform the goal pose from %s into the %s frame: %s",
+          goal_pose.frame_id_.c_str(), global_frame.c_str(), ex.what());
+      return goal_pose_msg;
+    }
+
+    geometry_msgs::PoseStamped global_pose_msg;
+    tf::poseStampedTFToMsg(global_pose, global_pose_msg);
+    return global_pose_msg;
+}
+
+void SemanticPlannerGlobal::reset()
+{
+    global_costmap_->stop();
+    global_costmap_->resetLayers();
+}

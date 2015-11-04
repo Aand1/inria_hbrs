@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- send lamp urdf to param server -->
+    <param name="lamp" command="$(find xacro)/xacro.py $(find gazebo_objects)/common/objects/lamp.urdf" /> -->
+	
+    <!-- spawn uploaded object model -->
+    <node name="lamp" pkg="gazebo_ros" type="spawn_model" args="-urdf -param lamp -model lamp -x 0.0 -y -2.0 -z 0.0" respawn="false" output="screen" /> 
+
+    
+
+
+
+
+
+
+</launch>

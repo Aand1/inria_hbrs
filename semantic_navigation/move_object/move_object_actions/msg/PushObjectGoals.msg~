@@ -1,0 +1,3 @@
+semantic_knowledgebase/ObjectInstance instance
+geometry_msgs/PoseStamped approach_object_goal
+geometry_msgs/PoseStamped push_object_goal

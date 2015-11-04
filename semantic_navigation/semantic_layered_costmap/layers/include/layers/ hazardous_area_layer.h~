@@ -1,0 +1,25 @@
+#ifndef HAZARDOUS_AREA_LAYER_H_
+#define HAZARDOUS_AREA_LAYER_H_
+ 
+#include <ros/ros.h>
+#include <costmap_2d/costmap_2d.h>
+#include <costmap_2d/costmap_layer.h>
+#include <costmap_2d/layered_costmap.h>
+#include <costmap_2d/GenericPluginConfig.h>
+#include <dynamic_reconfigure/server.h>
+#include <nav_msgs/OccupancyGrid.h>
+#include <geometry_msgs/Polygon.h>
+#include <geometry_msgs/PolygonStamped.h>
+#include <costmap_2d/costmap_math.h>
+
+namespace semantic_costmap
+{
+      
+  class HazardousAreaLayer 
+  {
+  public:
+     virtual void onInitialize();
+     
+  };
+}
+#endif

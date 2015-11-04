@@ -1,0 +1,52 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(semantic_localization)
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  geometry_msgs
+  tf
+  message_generation
+)
+
+find_package(semantic_map REQUIRED)
+
+add_message_files(
+   DIRECTORY msg
+   FILES
+    SemanticPose.msg 
+)
+
+generate_messages(
+  DEPENDENCIES
+    geometry_msgs
+    semantic_map
+)
+
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES semantic_localization
+  CATKIN_DEPENDS roscpp geometry_msgs tf 
+#  DEPENDS system_lib
+)
+
+include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+  ${semantic_map_INCLUDE_DIRS}
+)
+
+add_library(semantic_localization
+   src/semantic_localization.cpp
+)
+
+target_link_libraries(semantic_localization
+  ${catkin_LIBRARIES}
+  ${semantic_map_LIBRARIES}
+)
+
+add_executable(semantic_localization_node
+  src/semantic_localization_node.cpp
+)
+target_link_libraries(semantic_localization_node semantic_localization)
+
+

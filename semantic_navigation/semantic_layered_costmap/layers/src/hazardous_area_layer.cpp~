@@ -1,0 +1,25 @@
+#include <layers/hazardous_area_layer.h>
+#include <pluginlib/class_list_macros.h>
+ 
+
+
+using costmap_2d::NO_INFORMATION;
+using costmap_2d::LETHAL_OBSTACLE;
+using costmap_2d::FREE_SPACE;
+
+
+namespace semantic_costmap
+{
+
+    void HazardousAreaLayer::onInitialize()
+    {
+
+    }
+
+    
+
+
+}  // namespace
+
+
+

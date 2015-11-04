@@ -1,0 +1,3 @@
+semantic_map/RegionInstance semantic_pose
+geometry_msgs/PoseStamped geometric_pose
+

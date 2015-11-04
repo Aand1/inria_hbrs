@@ -1,0 +1,3 @@
+semantic_knowledgebase/ObjectInstance semantic_pose
+geometry_msgs/PoseStamped geometric_pose
+

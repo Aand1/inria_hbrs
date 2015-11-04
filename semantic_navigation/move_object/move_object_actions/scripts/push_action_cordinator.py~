@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# license removed for brevity
+
+import roslib:roslib.load_manifest('')
+import rospy
+import smach
+import smach_ros
+
+
+
+
+def trigger_global_planner():
+    trigger_global_planner_pub = rospy.Publisher('semantic_planner_global/trigger', Bool, queue_size=10)
+    rospy.init_node('push_action_cordinator', anonymous=True)
+    rate = rospy.Rate(10) # 10hz
+
+    while trigger_global_planner_pub.get_num_connections() == 0:
+        rate.sleep()
+
+    trigger = 1
+    rospy.loginfo(trigger)
+    trigger_global_planner_pub.publish(trigger)
+    
+
+
+if __name__ == '__main__':
+    try:
+        trigger_global_planner()
+    except rospy.ROSInterruptException:
+        pass
