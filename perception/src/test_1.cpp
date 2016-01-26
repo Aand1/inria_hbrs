@@ -1,0 +1,75 @@
+#include <ros/ros.h>
+#include <fstream>
+#include "yaml-cpp/yaml.h"
+#include <iostream>
+#include <string>
+#include <vector>
+
+
+struct Position { int x; int y; int z; };
+struct Orientation { int x; int y; int z; int w; };
+
+struct Pose
+{
+    Position p;
+    Orientation o;
+
+};
+
+
+YAML::Emitter& operator << (YAML::Emitter& out, Pose& v) {
+    out << YAML::BeginSeq;
+    
+    out << YAML::BeginMap;
+    
+    out << YAML::Key << "instance";
+    out << YAML::Value << "";
+    out << YAML::Key << "geometry";
+    out << YAML::BeginMap;
+    out << YAML::Key << "pose";
+    out << YAML::BeginMap;
+    out << YAML::Key << "position";
+    out << YAML::BeginMap;
+    out << YAML::Key << "x";
+    out << YAML::Value << 1.5;
+    out << YAML::Key << "y";
+    out << YAML::Value << 0.0;
+    out << YAML::Key << "z";
+    out << YAML::Value << 0.0;
+    out << YAML::EndMap;
+    out << YAML::EndMap;
+    out << YAML::EndMap;
+
+    out << YAML::EndMap;
+
+    out << YAML::EndSeq;
+
+    return out;
+}
+
+
+
+int main()
+{
+/*        // write through emitter
+        YAML::Emitter out;
+
+        Pose p1;
+
+        out << p1;
+
+	Pose p2;
+
+        out << p2;
+
+        Pose p3;
+
+        out << p3;
+        
+
+	std::ofstream fout("/home/niranjan/catkin_ws/src/inria_hbrs/perception/data/test1.yaml");
+        fout << out.c_str();  */
+
+        //write through node
+
+}

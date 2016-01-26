@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+
+def initialize_semantic_map_ros():
+	'''
+	Initialize the SemanticMapROS class and spin to keep python from exiting untill this node is stopped
+	'''
+
+	rospy.init_node('semantic_map_ros', anonymous=False)
+	rospy.loginfo("semantic_map_ros is now running")
+
+	semantic_map_ros = SemanticMapROS()
+
+	rospy.spin()
+
+
+if __name__ == '__main__':
+	initialize_semantic_map_ros()
+
+	rospy.init_node('semantic_map_ros_node', anonymous=False)
+	rospy.loginfo("semantic_map_ros_node is now running")
+
+	semantic_map_ros = SemanticMapROS()
+
+	rospy.spin()

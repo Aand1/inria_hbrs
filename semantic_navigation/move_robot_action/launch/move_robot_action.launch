@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!--<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" launch-prefix="xterm -e gdb args"> -->
+        <node pkg="move_robot_action" type="move_robot_action_node" respawn="false" name="move_robot_action_node" output="screen" clear_params="true" launch-prefix="xterm -e gdb --args">
+        <!--<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" > -->
+       
+    		<rosparam file="$(find semantic_planner_global)/cfg/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find semantic_planner_global)/cfg/global_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find semantic_planner_local)/cfg/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find semantic_planner_local)/cfg/local_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_robot_action)/config/base_local_planner_params.yaml" command="load" /> 
+
+		
+		
+               
+  	</node>
+
+       
+
+
+</launch>
+

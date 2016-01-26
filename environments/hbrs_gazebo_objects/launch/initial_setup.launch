@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send wall_HUGE urdf to param server -->
+    	<param name="wall_HUGE" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/wall_HUGE.urdf" />
+	
+    	<!-- spawn uploaded corrogated_box model -->
+    	<node name="spawn_wall_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_HUGE  -x 7 -y 0 -z 1 -R 0 -P 0 -Y 0 -model wall_1" respawn="false" output="screen" />
+    	<node name="spawn_wall_2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_HUGE  -x -7 -y 0 -z 1 -R 0 -P 0 -Y 0 -model wall_2" respawn="false" output="screen" />
+	
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send wall_huge urdf to param server -->
+    	<param name="wall_huge" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/wall_huge.urdf" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_wall_3" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_huge  -x 0 -y 8 -z 1 -R 0 -P 0 -Y 0 -model wall_3" respawn="false" output="screen" />
+    	<node name="spawn_wall_4" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_huge  -x 0 -y -8 -z 1 -R 0 -P 0 -Y 0 -model wall_4" respawn="false" output="screen" />
+
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send wall_normal urdf to param server -->
+    	<param name="wall_normal" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/wall_normal.urdf" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_wall_5" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_normal  -x -4.20 -y 4 -z 1 -R 0 -P 0 -Y 0 -model wall_5" respawn="false" output="screen" />
+
+	<node name="spawn_wall_6" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_normal  -x 2.62 -y 4 -z 1 -R 0 -P 0 -Y 0 -model wall_6" respawn="false" output="screen" />
+
+	<node name="spawn_wall_7" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_normal  -x 4.2 -y -4.1 -z 1 -R 0 -P 0 -Y 0 -model wall_7" respawn="false" output="screen" />
+
+
+        <!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send wall_small urdf to param server -->
+    	<param name="wall_small" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/wall_small.urdf" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_wall_8" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_small  -x -0.1 -y -5.9 -z 1 -R 0 -P 0 -Y 0 -model wall_8" respawn="false" output="screen" />
+
+	<node name="spawn_wall_9" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_small  -x -1.85 -y -2.1 -z 1 -R 0 -P 0 -Y 0 -model wall_9" respawn="false" output="screen" />
+
+
+        <!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send wall_tiny urdf to param server -->
+    	<param name="wall_tiny" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/wall_tiny.urdf" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_wall_10" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_tiny  -x -1.85 -y 2.7 -z 1 -R 0 -P 0 -Y 0 -model wall_10" respawn="false" output="screen" />
+
+        <!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send wall_LARGE urdf to param server -->
+    	<param name="wall_LARGE" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/wall_LARGE.urdf" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_wall_11" pkg="gazebo_ros" type="spawn_model" args="-urdf -param wall_LARGE  -x -4.44 -y -2.00 -z 1 -R 0 -P 0 -Y 0 -model wall_11" respawn="false" output="screen" />
+
+
+
+        <!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+
+	<!-- send couch_large urdf to param server -->
+    	<param name="couchl" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/couchl.urdf" />
+	
+    	<!-- spawn uploaded wall model -->
+    	<node name="spawn_couchl_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couchl -x 3.0 -y -2.0 -z 0 -R 0 -P 0 -Y -1.57 -model couchl_1" respawn="false" output="screen" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_couchl_2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couchl -x 5.0 -y 0.25 -z 0 -R 0 -P 0 -Y 0 -model couchl_2" respawn="false" output="screen" />
+
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send couch_small urdf to param server -->
+    	<param name="couchs" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/couchs.urdf" />
+	
+    	<!-- spawn uploaded wall model -->
+    	<node name="spawn_couchs_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couchs -x 1.0 -y 0.25 -z 0 -R 0 -P 0 -Y 3.14 -model couchs_1" respawn="false" output="screen" />
+
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send couch_small urdf to param server -->
+    	<param name="table_tv" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/table_tv.urdf" />
+	
+    	<!-- spawn uploaded wall model -->
+    	<node name="spawn_table_tv_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param table_tv -x 2.98 -y 2.17 -z 0 -R 0 -P 0 -Y -1.57 -model table_tv_1" respawn="false" output="screen" />
+
+
+        <!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send corrogated_box urdf to param server -->
+    	<param name="couch" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/corrogated_box.urdf" />
+	
+    	<!-- spawn uploaded corrogated_box model -->
+    	<node name="spawn_corrogated_box1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couch  -x 1.5 -y 1.50 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box1" respawn="false" output="screen" />
+    	<node name="spawn_corrogated_box2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couch  -x 1.25 -y -1.0 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box2" respawn="false" output="screen" />
+
+
+
+
+
+
+
+	
+
+	
+
+
+
+	
+
+
+</launch>
+

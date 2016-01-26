@@ -1,0 +1,3 @@
+geometry_msgs/PoseStamped approach_object
+geometry_msgs/PoseStamped move_object
+geometry_msgs/PoseStamped reach_goal

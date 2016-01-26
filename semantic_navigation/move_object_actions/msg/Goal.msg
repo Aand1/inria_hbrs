@@ -1,0 +1,2 @@
+semantic_knowledgebase/ObjectInstance instance
+geometry_msgs/PoseStamped goal

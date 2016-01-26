@@ -1,0 +1,152 @@
+/*********************************************************************
+ *
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2015, Hochschule Bonn-Rhein-Sieg, Germany
+ *                      Inria, France
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Hochschule Bonn-Rhein-Sieg, Germany and Inria, 
+ *     France nor the names of its contributors may be used to 
+ *     endorse or promote products derived from this software without 
+ *     specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Author: Niranjan Vilas Deshpande
+ *         (niranjan.deshpande187@gmail.com)
+ *
+ * Supervised by: Sven Schneider (Hochschule Bonn-Rhein-Sieg)
+ *                Prof. Dr. Paul G. Ploeger (Hochschule Bonn-Rhein-Sieg)
+ *		          Dr. Anne Spalanzani (Inria)
+ *********************************************************************/
+
+#ifndef DYNAMIC_OBJECTS_H_
+#define DYNAMIC_OBJECTS_H_
+
+#include <ros/ros.h>
+#include <costmap_2d/costmap_layer.h> 
+#include <costmap_2d/observation_buffer.h> 
+
+#include <sensor_msgs/LaserScan.h>
+#include <laser_geometry/laser_geometry.h> 
+
+#include "tf/message_filter.h"
+#include <tf/transform_listener.h> 
+#include <boost/thread.hpp> 
+ 
+#include "message_filters/subscriber.h" 
+
+#include <std_msgs/String.h>
+#include <string> 
+
+#include <semantic_map/Object.h> 
+#include <semantic_map/semantic_map.h> 
+
+ 
+namespace semantic_navigation_layers
+{
+	class DynamicObjects : public costmap_2d::CostmapLayer
+	{
+	public:
+		  DynamicObjects(costmap_2d::Costmap2D* parent, ros::NodeHandle& nh, tf::TransformListener *tf, std::string global_frame, bool rolling_window, std::string object_type); 
+
+		  virtual ~DynamicObjects();
+
+		  virtual void initialize(costmap_2d::Costmap2D* parent, std::string global_frame, bool rolling_window);
+
+		  virtual void updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x, double* min_y,
+                            double* max_x, double* max_y);
+  		virtual void updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j);
+
+      void matchSize()
+      {
+          resizeMap(layer_grid_->getSizeInCellsX(), layer_grid_->getSizeInCellsY(), layer_grid_->getResolution(),
+            layer_grid_->getOriginX(), layer_grid_->getOriginY());
+      }
+
+      void initMap(unsigned int size_x, unsigned int size_y);
+      
+  private:
+  		void laserScanValidInfCallback(const sensor_msgs::LaserScanConstPtr& raw_message, 
+  		const boost::shared_ptr<costmap_2d::ObservationBuffer>& buffer);
+
+  		bool getMarkingObservations(std::vector<costmap_2d::Observation>& marking_observations) const;
+  		bool getClearingObservations(std::vector<costmap_2d::Observation>& clearing_observations) const;
+
+  		virtual void raytraceFreespace(const costmap_2d::Observation& clearing_observation, double* min_x, double* min_y,
+                                 double* max_x, double* max_y);
+
+  		void updateRaytraceBounds(double ox, double oy, double wx, double wy, double range, double* min_x, double* min_y,
+		  double* max_x, double* max_y);
+
+      bool inObjectBoundingBox(unsigned int x, unsigned int y, std::list<semantic_map::Object>& object_list_);
+
+      costmap_2d::Costmap2D* layer_grid_;
+      semantic_map::SemanticMap* semantic_map_query;
+      std::string object_type_;
+
+      // Variables related to bounding box of objects
+      float  polyX[4], polyY[4];
+      bool  oddNodes_;
+      bool inside_;
+      int i_, j_, k_, l_;
+
+
+  		//< @brief Used to project laser scans into point clouds
+  		laser_geometry::LaserProjection projector_; 
+
+  		// @brief Used for the observation message filters
+		  std::vector<boost::shared_ptr<message_filters::SubscriberBase> > observation_subscribers_; 
+
+		  // @brief Used to make sure that transforms are available for each sensor
+      std::vector<boost::shared_ptr<tf::MessageFilterBase> > observation_notifiers_; 
+
+      // @brief Used to store observations from various sensors
+     	std::vector<boost::shared_ptr<costmap_2d::ObservationBuffer> > observation_buffers_; 
+
+      // @brief Used to store observation buffers used for marking obstacles
+     	std::vector<boost::shared_ptr<costmap_2d::ObservationBuffer> > marking_buffers_; 
+      
+      // @brief Used to store observation buffers used for clearing obstacles
+     	std::vector<boost::shared_ptr<costmap_2d::ObservationBuffer> > clearing_buffers_; 
+
+     	std::vector<costmap_2d::Observation> static_clearing_observations_, static_marking_observations_;
+
+     	tf::TransformListener* tf_;
+      ros::NodeHandle nh_;    	
+      std::string name_;
+
+    	int combination_method_;
+    	std::string global_frame_; ///< @brief The global frame for the costmap
+	    double max_obstacle_height_; ///< @brief Max Obstacle Height
+	    double transform_tolerance;
+	    bool rolling_window_, current_;
+
+      
+	};
+
+};
+
+#endif 

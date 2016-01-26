@@ -1,0 +1,7 @@
+# An action for pushing an object
+
+semantic_map/ObjectInstance object_instance 
+geometry_msgs/PoseStamped reach_goal
+---
+---
+

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<class_libraries>
+      <library path="lib/libsemantic_layers">
+        <class type="semantic_navigation_layers::HeavyObjectsLayer" base_class_type="costmap_2d::Layer">
+          <description> </description>
+        </class>
+           
+        <class type="semantic_navigation_layers::StructuralObjectsLayer" base_class_type="costmap_2d::Layer">
+          <description> </description>
+        </class>
+
+	<class type="semantic_navigation_layers::LightObjectsLayer" base_class_type="costmap_2d::Layer">
+          <description> </description>
+        </class>
+      </library>
+
+      
+ </class_libraries> 
+
+
+ 
+
+

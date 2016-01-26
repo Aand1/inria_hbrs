@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+        
+
+	<!-- Launch AMCL node -->
+	<include file="$(find pioneer3dx_navigation)/launch/amcl.launch" />
+       
+        <!-- Launch semantic localization node -->
+	<include file="$(find semantic_localization)/launch/semantic_localization.launch" />
+
+</launch>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+
+    <param name="door" textfile="/home/niranjan/catkin_ws/src/inria_hbrs/environments/gazebo_default_objects/gazebo_models/hinged_door/model-1_4.sdf" />
+    <node name="spawn_door" pkg="gazebo_ros" type="spawn_model" args="-sdf -param door  -x 1.0 -y 2.0 -z 0.00 -R 0 -P 0 -Y -1.57 -model door" respawn="false" output="screen" /> 
+</launch>
+
+
+

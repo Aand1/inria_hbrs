@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- send stool urdf to param server -->
+    <param name="stool" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/stool.urdf" /> 
+	
+    <!-- spawn uploaded stool model -->
+    <node name="stool" pkg="gazebo_ros" type="spawn_model" args="-urdf -param stool -model stool1 -x 0 -y 0 -z 0.0 -R 0 -P 0 -Y 0" respawn="false" output="screen" /> 
+
+
+</launch>

@@ -1,0 +1,23 @@
+- instance: ""
+  geometry:
+    pose:
+      position:
+        x: 1.5
+        y: 0
+        z: 0
+---
+- instance: ""
+  geometry:
+    pose:
+      position:
+        x: 1.5
+        y: 0
+        z: 0
+---
+- instance: ""
+  geometry:
+    pose:
+      position:
+        x: 1.5
+        y: 0
+        z: 0

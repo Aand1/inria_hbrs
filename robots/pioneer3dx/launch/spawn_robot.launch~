@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!-- spawn_robot.launch -->
+
+<launch>
+
+  <!-- Robot pose -->
+  <arg name="x" default="0"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0"/>
+  <arg name="roll" default="0"/>
+  <arg name="pitch" default="0"/>
+  <arg name="yaw" default="0"/>
+
+
+  <!-- upload robot description -->
+	
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro.py '$(find p3dx_description)/urdf/pioneer3dx.xacro'" />
+  
+  <!-- Run a python script to the send a service call to gazebo_ros to spawn a URDF robot -->      
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model p3dx -param robot_description
+              -x $(arg x) -y $(arg y) -z $(arg z)
+              -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/>
+
+
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" ></node>
+
+  <!-- start robot state publisher -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher"
+	name="robot_state_publisher" output="screen" >
+        <param name="publish_frequency" type="double" value="50.0" />
+  </node>
+
+
+</launch>

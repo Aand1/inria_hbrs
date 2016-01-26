@@ -1,0 +1,48 @@
+#include <boost/bind.hpp>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+#include <gazebo/common/common.hh>
+#include <stdio.h>
+#include <ros/ros.h>
+#include <gazebo/physics/State.hh>
+#include <gazebo/physics/World.hh>
+
+namespace gazebo
+{
+  class World_ : public State
+  {
+    public: void Load(physics::WorldPtr _world, sdf::ElementPtr /*_sdf*/)
+    {
+      // Store the pointer to the model
+      this->world = _world;
+
+      
+
+      // Listen to the update event. This event is broadcast every
+      // simulation iteration.
+      this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+          boost::bind(&World_::OnUpdate, this, _1));
+    }
+
+    // Called by the world update start event
+    public: void OnUpdate(const common::UpdateInfo & /*_info*/)
+    {
+      // Apply a small linear velocity to the model.
+      //this->model->SetLinearVel(math::Vector3(.03, 0, 0));
+      std::cout << world->Getmodels() << std::endl;
+      //ros::NodeHandle _nh;
+      //ros::Publisher Publisher = _nh.advertise<>("bounding_box", 1);
+    }
+
+    // Pointer to the model
+    private: 
+      physics::ModelPtr model;
+      physics::WorldPtr world;
+
+    // Pointer to the update event connection
+    private: event::ConnectionPtr updateConnection;
+  };
+
+  // Register this plugin with the simulator
+  GZ_REGISTER_WORLD_PLUGIN(World_)
+}

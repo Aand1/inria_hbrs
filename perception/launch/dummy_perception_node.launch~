@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+        <node pkg="perception" type="dummy_perception_node" respawn="false" name="dummy_perception_node" output="screen" clear_params="true" launch-prefix="xterm -e gdb --args">
+		
+               
+  	</node>
+
+</launch>
+

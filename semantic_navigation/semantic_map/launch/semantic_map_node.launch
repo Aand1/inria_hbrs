@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+        <node pkg="semantic_map" type="semantic_map_node" respawn="false" name="semantic_map_node" output="screen" clear_params="true" launch-prefix="xterm -e gdb --args">
+
+               
+  	</node>
+
+</launch>
+

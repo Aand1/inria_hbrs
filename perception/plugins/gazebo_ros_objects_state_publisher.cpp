@@ -1,0 +1,171 @@
+/*********************************************************************
+ *
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2015, Hochschule Bonn-Rhein-Sieg, Germany
+ *                      Inria, France
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Hochschule Bonn-Rhein-Sieg, Germany and Inria, 
+ *     France nor the names of its contributors may be used to 
+ *     endorse or promote products derived from this software without 
+ *     specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Author: Niranjan Vilas Deshpande
+ *         (niranjan.deshpande187@gmail.com)
+ *
+ * Supervised by: Sven Schneider (Hochschule Bonn-Rhein-Sieg)
+ *                Prof. Dr. Paul G. Ploeger (Hochschule Bonn-Rhein-Sieg)
+ *		          Dr. Anne Spalanzani (Inria)
+ *********************************************************************/
+
+ #include <perception/gazebo_ros_objects_state_publisher.h>
+
+
+using namespace gazebo;
+using namespace physics;
+
+GazeboRosObjectsStatePublisher::GazeboRosObjectsStatePublisher() {}
+
+GazeboRosObjectsStatePublisher::~GazeboRosObjectsStatePublisher() 
+{
+	rosnode_->shutdown();
+}
+
+void GazeboRosObjectsStatePublisher::Load (physics::WorldPtr _parent, sdf::ElementPtr _sdf) 
+{
+	this->world_ = _parent;
+
+	this->namespace_ =world_->GetName ();
+
+	if ( !namespace_.empty() ) this->namespace_ += "/";
+    
+    rosnode_ = boost::shared_ptr<ros::NodeHandle> (new ros::NodeHandle ( this->namespace_ ) );
+
+
+    this->update_rate_ = 100.0;
+    if ( !_sdf->HasElement ( "updateRate" ) ) 
+    {
+        ROS_WARN ( "GazeboRosJointStatePublisher Plugin (ns = %s) missing <updateRate>, defaults to %f",
+                   this->namespace_.c_str(), this->update_rate_ );
+    } 
+    else 
+    {
+        this->update_rate_ = _sdf->GetElement ( "updateRate" )->Get<double>();
+    }
+
+    // Initialize update rate stuff
+    if ( this->update_rate_ > 0.0 ) 
+    {
+        this->update_period_ = 1.0 / this->update_rate_;
+    } 
+    else 
+    {
+        this->update_period_ = 0.0;
+    }
+    last_update_time_ = this->world_->GetSimTime();
+
+    objects_state_publisher_ = rosnode_->advertise<perception::ObjectsState> ( "objects_state",1000 );
+
+    // Listen to the update event. This event is broadcast every
+    // simulation iteration.
+    this->updateConnection = event::Events::ConnectWorldUpdateBegin(boost::bind(&GazeboRosObjectsStatePublisher::OnUpdate, this, _1));
+
+}
+
+void GazeboRosObjectsStatePublisher::OnUpdate ( const common::UpdateInfo & _info ) 
+{
+	common::Time current_time = this->world_->GetSimTime();
+    double seconds_since_last_update = ( current_time - last_update_time_ ).Double();
+    if ( seconds_since_last_update > update_period_ ) 
+    {
+
+        publishObjectsState();
+
+        last_update_time_+= common::Time ( update_period_ );
+
+    }
+	
+
+}
+
+void GazeboRosObjectsStatePublisher::publishObjectsState() 
+{
+	ros::Time current_time = ros::Time::now();
+
+	// Add a state for all the models
+    models_ = world_->GetModels();
+
+	objects_state_.model_name.resize ( models_.size() );
+	objects_state_.pose.resize ( models_.size() );
+	objects_state_.size.resize ( models_.size() );
+
+	int i = 0;
+	for ( Model_V::const_iterator iter = models_.begin(); iter != models_.end(); ++iter, i++ )
+    {
+    	model_ = *iter;
+
+    	objects_state_.model_name[i] = model_->GetName();
+
+    	math::Pose pose = model_->GetWorldPose();
+    	objects_state_.pose[i].position.x = pose.pos.x; 
+    	objects_state_.pose[i].position.y = pose.pos.y; 
+    	objects_state_.pose[i].position.z = pose.pos.z; 
+    	objects_state_.pose[i].orientation.x = pose.rot.x; 
+    	objects_state_.pose[i].orientation.y = pose.rot.y; 
+    	objects_state_.pose[i].orientation.z = pose.rot.z; 
+    	objects_state_.pose[i].orientation.w = pose.rot.w; 
+
+        if (objects_state_.model_name[i].compare(0, 6,"couchl") == 0)
+        {
+           objects_state_.size[i].x = 1.0;
+           objects_state_.size[i].y = 2.0;
+           objects_state_.size[i].z = 1.0;
+
+        } 
+
+        else if (objects_state_.model_name[i].compare(0, 6,"couchs") == 0)
+        {
+           objects_state_.size[i].x = 1.25;
+           objects_state_.size[i].y = 1.0;
+           objects_state_.size[i].z = 1.0;
+
+        }   
+        else 
+        { 
+    	   math::Box box = model_->GetBoundingBox();
+    	   math::Vector3 size = box.GetSize();
+    	   objects_state_.size[i].x = size.x;
+    	   objects_state_.size[i].y = size.y;
+    	   objects_state_.size[i].z = size.z;
+        }
+
+
+    }
+
+	objects_state_publisher_.publish ( objects_state_ );
+
+}

@@ -1,0 +1,6 @@
+contextual_constraints:
+   context_weight_ = 10.0;
+   context_factor_ = 1.0;
+semantic_constraints:      	
+   semantic_weight_ = 10.0;	
+   semantic_factor_ = 1.0;

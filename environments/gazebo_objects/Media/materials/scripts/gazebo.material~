@@ -1,0 +1,17 @@
+////////////////////////////////////////////////////////////////////////////////
+// HBRS/Inria materials
+
+
+material HBRS/CorrogatedBox
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture box.jpg
+      }
+    }
+  }
+}
