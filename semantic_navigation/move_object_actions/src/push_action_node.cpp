@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 	move_object::PushAction push_action(tf);
         
 	//ros::MultiThreadedSpinner s;
-        ros::spin();
+    ros::spin();
 
 	return 0;
 

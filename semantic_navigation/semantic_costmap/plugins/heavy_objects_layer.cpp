@@ -107,6 +107,11 @@ namespace semantic_navigation_layers
     void HeavyObjectsLayer::updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x,
                                             double* min_y, double* max_x, double* max_y)
     {
+        if (!enabled_)
+            return;
+
+        if (!update_)
+            return;
         //matchSize();
 
     	//so_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
@@ -119,7 +124,12 @@ namespace semantic_navigation_layers
     void HeavyObjectsLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i,
                                            int max_j)
     {
-    	//do_->updateCosts(heavy_objects_costmap_, min_i, min_j, max_i, max_j);
+    	if (!enabled_)
+            return;
+
+        if (!update_)
+            return;
+        //do_->updateCosts(heavy_objects_costmap_, min_i, min_j, max_i, max_j);
         //so_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
 
         do_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
@@ -167,22 +177,29 @@ namespace semantic_navigation_layers
 
     void HeavyObjectsLayer::activate()
     {
-
+        enabled_ = true;
+        ROS_INFO_STREAM("Started HeavyObjectsLayer");
     }
 
     void HeavyObjectsLayer::deactivate()
     {
-        
+        enabled_ = false;
+        update_ = false;
+        ROS_INFO_STREAM("Stopped HeavyObjectsLayer");
     }
 
     void HeavyObjectsLayer::reset()
     {
-        
+        update_ = true;
     }
 
     void HeavyObjectsLayer::setParameters(const sem_nav_msgs::LayerConstraints& constraints)
     {
+        update_ = true;
         io_->setInflationParameters(constraints.inflation_radius, constraints.context_factor);
+
     }
+
+
     
 }

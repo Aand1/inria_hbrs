@@ -28,8 +28,8 @@ int main(int argc, char** argv)
     geometry_msgs::PoseStamped robot_pose, robot_goal;
     robot_pose.header.stamp = ros::Time::now();
     robot_pose.header.frame_id = "map";
-    robot_pose.pose.position.x = 3.5;
-    robot_pose.pose.position.y = -2.0;
+    robot_pose.pose.position.x = 3.0;
+    robot_pose.pose.position.y = 0.0;
     robot_pose.pose.position.z = 0.0;
     robot_pose.pose.orientation.x = 0.0;
     robot_pose.pose.orientation.y = 0.0;
@@ -37,8 +37,8 @@ int main(int argc, char** argv)
     robot_pose.pose.orientation.w = 0.0;
 
     robot_goal.header.frame_id = "/map";
-    robot_goal.pose.position.x = -2.5;
-    robot_goal.pose.position.y = -1.80;
+    robot_goal.pose.position.x = -1.5;
+    robot_goal.pose.position.y = 1.80;
 
     
     best_path->getObjectPlanCost(robot_pose, robot_goal);

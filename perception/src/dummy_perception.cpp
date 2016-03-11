@@ -60,7 +60,7 @@ DummyPerception::DummyPerception(const ros::NodeHandle &nh) : nh_(nh)
 
 	gazebo_ros_objects_state_subscriber = nh_.subscribe<perception::ObjectsState>("gazebo/objects_state", 1000, boost::bind(&DummyPerception::objectsStateCallback, this, _1));
 
-	double map_update_frequency = 1;
+	double map_update_frequency = 0.8;
     map_update_thread_shutdown_ = false;
 
     map_update_thread_ = new boost::thread(boost::bind(&DummyPerception::updateMapLoop, this, map_update_frequency));
@@ -94,7 +94,7 @@ void DummyPerception::printUpdates(std::list<Object>& list)
   	{
     	semantic_map::Object& object = *obs_it;
     	
-    	ROS_INFO_STREAM(object);
+    	//ROS_INFO_STREAM(object);
   	}
 
 }
@@ -145,8 +145,8 @@ void DummyPerception::computeBbAndSp(const Vector2& center, const double w, cons
 	//Vector2 Y( -sin(angle), cos(angle));
 
 	// Adding tolerance for bounding box
-	double w_ = w + 0.5;
-	double h_ = h + 0.5;
+	double w_ = w + 0.3;
+	double h_ = h + 0.3;
 	
 	if ( angle < 45 || angle > 135)
 	{
@@ -217,6 +217,22 @@ void DummyPerception::computeBbAndSp(const Vector2& center, const double w, cons
         sp[2].y =  precision(center.y + (w / 2 + 0.2));
         sp[3].x =  precision(center.x - (h / 2 + 0.2));
 
+        // additional semantic points
+        sp[4].x =  precision(center.x + (h / 2 + 0.2));
+        sp[4].y =  precision(center.y - (w / 2 + 0.2));
+        sp[5].x =  precision(center.x + (h / 2 + 0.2));
+        sp[5].y =  precision(center.y + (w / 2 + 0.2));
+        sp[6].x =  precision(center.x - (h / 2 + 0.2));
+        sp[6].y =  precision(center.y + (w / 2 + 0.2));
+        sp[7].x =  precision(center.x - (h / 2 + 0.2));
+        sp[7].y =  precision(center.y - (w / 2 + 0.2));
+
+        sp[4].z =  precision(0.0);
+    	sp[5].z =  precision(0.0);
+    	sp[6].z =  precision(0.0);
+    	sp[7].z =  precision(0.0);
+
+
 
     }  
     else if (obj.semantics.category.compare("Unknown") == 0)
@@ -227,7 +243,7 @@ void DummyPerception::computeBbAndSp(const Vector2& center, const double w, cons
         sp[3].x =  precision(center.x - (w / 2 + 0.3));
 
     } 
-    ROS_INFO_STREAM(obj.semantics.semantic_positions.position.size());
+    
     for (int i = 0; i < 8; i++)
     {
       	obj.semantics.semantic_positions.position.push_back(sp[i]);
@@ -299,8 +315,15 @@ void DummyPerception::computeValues()
 			object.semantics.category = "HeavyObject";
 			object.semantics.sub_category = "Couch";
 
+			if(angle > 45 && angle < 135 )
+			{
+				computeBbAndSp(center, objects_state_temp_.size[i].x, objects_state_temp_.size[i].y, angle, object);
+			}
+			else
+			{
+				computeBbAndSp(center, objects_state_temp_.size[i].y+0.1, objects_state_temp_.size[i].x, angle, object);
+			}
 			
-			computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
 
 			object_list_.push_back(object); 
 
@@ -334,6 +357,7 @@ void DummyPerception::computeValues()
 			object_list_.push_back(object); 
 		}
 
+		
 		/*else if (instance.compare(0, 2,"tv") == 0)
 		{
 			object.instance.name = objects_state_temp_.model_name[i];
@@ -435,10 +459,6 @@ void DummyPerception::computeValues()
 			object.geometry.pose.orientation.y = precision(objects_state_temp_.pose[i].orientation.y);
 			object.geometry.pose.orientation.z = precision(objects_state_temp_.pose[i].orientation.z);
 			object.geometry.pose.orientation.w = precision(objects_state_temp_.pose[i].orientation.w);
-
-
-
-
 			
     		center.x = objects_state_temp_.pose[i].position.x;
     		center.y = objects_state_temp_.pose[i].position.y;
@@ -448,6 +468,59 @@ void DummyPerception::computeValues()
 			object.semantics.sub_category = "Box";
 
 			computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
+
+			object.semantics.affordance = "Push";
+
+			object_list_.push_back(object); 	
+		}
+
+		if (instance.compare(0, 4,"ball") == 0)
+		{
+			object.instance.name = objects_state_temp_.model_name[i];
+
+			object.geometry.pose.position.x = precision(objects_state_temp_.pose[i].position.x);			
+			object.geometry.pose.position.y = precision(objects_state_temp_.pose[i].position.y);
+			object.geometry.pose.position.z = precision(objects_state_temp_.pose[i].position.z);
+			object.geometry.pose.orientation.x = precision(objects_state_temp_.pose[i].orientation.x);			
+			object.geometry.pose.orientation.y = precision(objects_state_temp_.pose[i].orientation.y);
+			object.geometry.pose.orientation.z = precision(objects_state_temp_.pose[i].orientation.z);
+			object.geometry.pose.orientation.w = precision(objects_state_temp_.pose[i].orientation.w);
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+
+			object.semantics.category = "LightObject";
+			object.semantics.sub_category = "Ball";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
+
+			object.semantics.affordance = "Tap";
+
+			object_list_.push_back(object); 	
+		}
+
+		if (instance.compare(0, 5,"chair") == 0)
+		{
+			object.instance.name = objects_state_temp_.model_name[i];
+
+			object.geometry.pose.position.x = precision(objects_state_temp_.pose[i].position.x);			
+			object.geometry.pose.position.y = precision(objects_state_temp_.pose[i].position.y);
+			object.geometry.pose.position.z = precision(objects_state_temp_.pose[i].position.z);
+			object.geometry.pose.orientation.x = precision(objects_state_temp_.pose[i].orientation.x);			
+			object.geometry.pose.orientation.y = precision(objects_state_temp_.pose[i].orientation.y);
+			object.geometry.pose.orientation.z = precision(objects_state_temp_.pose[i].orientation.z);
+			object.geometry.pose.orientation.w = precision(objects_state_temp_.pose[i].orientation.w);
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Chair";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
+
 
 			object_list_.push_back(object); 	
 		}

@@ -123,7 +123,7 @@ int main(int argc, char** argv)
 
 semantic_costmap::SemanticCostmapROS* global_costmap_;
 
-void constraintsCallback(const sem_nav_msgs::SemanticCostmapConstraints::ConstPtr& constraints)
+/*void constraintsCallback(const sem_nav_msgs::SemanticCostmapConstraints::ConstPtr& constraints)
 {
     //ROS_INFO_STREAM("Semantic costmap node");
 
@@ -133,9 +133,9 @@ void constraintsCallback(const sem_nav_msgs::SemanticCostmapConstraints::ConstPt
 
     global_costmap_->setParameters(constraints_);
 
-}
+}*/
 
-/*void chatterCallback(const std_msgs::Int32::ConstPtr& msg)
+void chatterCallback(const std_msgs::Int32::ConstPtr& msg)
 {
    if (msg->data == 0) 
    {
@@ -143,7 +143,7 @@ void constraintsCallback(const sem_nav_msgs::SemanticCostmapConstraints::ConstPt
        //global_costmap_->stop();
        //global_costmap_->startLayers();
        //global_costmap_->start();
-       //global_costmap_->stopCostmap();
+       global_costmap_->stopCostmap();
 
     }
 
@@ -158,11 +158,11 @@ void constraintsCallback(const sem_nav_msgs::SemanticCostmapConstraints::ConstPt
     {
        ROS_INFO_STREAM("Starting costmap normally");
        //global_costmap_->stopLayers();
-       //global_costmap_->start();
+       global_costmap_->start();
     }
 
      
-}*/
+}
 
 int main(int argc, char** argv)
 {
@@ -171,11 +171,11 @@ int main(int argc, char** argv)
     ros::NodeHandle nh_;
     
 
-    //ros::Subscriber sub = nh_.subscribe("semantic_costmap_node", 1000, chatterCallback);
-    ros::Subscriber sem_cm_sub = nh_.subscribe("semantic_costmap_constraints", 0, constraintsCallback);    
+    ros::Subscriber sub = nh_.subscribe("semantic_costmap_node", 1000, chatterCallback);
+    //ros::Subscriber sem_cm_sub = nh_.subscribe("semantic_costmap_constraints", 0, constraintsCallback);    
 
 	global_costmap_ = new semantic_costmap::SemanticCostmapROS("global_costmap", tf);
-    global_costmap_->start();
+    //global_costmap_->start();
     //global_costmap_->stop();
     //global_costmap_->stopLayers();
     //ros::Duration(1.0).sleep();

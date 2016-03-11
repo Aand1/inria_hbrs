@@ -81,6 +81,7 @@ namespace semantic_navigation_layers
 
         void reconfigureCB(semantic_costmap::StructuralObjectsPluginConfig &config, uint32_t level);
 
+
         costmap_2d::Costmap2D* local_costmap_;
 
         std::string object_type;
@@ -89,6 +90,8 @@ namespace semantic_navigation_layers
     	InflateObjects* io_;
 
         dynamic_reconfigure::Server<semantic_costmap::StructuralObjectsPluginConfig> *dsrv_;
+
+        bool update_;
       
     };
 }; 

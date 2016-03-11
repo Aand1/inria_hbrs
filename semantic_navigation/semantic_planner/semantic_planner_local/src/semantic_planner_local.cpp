@@ -226,6 +226,24 @@ void SemanticPlannerLocal::back()
     
     vel_pub_.publish(cmd_vel);
 
+}
+
+void SemanticPlannerLocal::setParam(sem_nav_msgs::LocalPlannerConstraints& constraints)
+{
+
+    for (int i = 0; i < constraints.doubles.size(); i++)
+    {
+
+        if (constraints.doubles[i].name.compare("max_vel_x")  == 0 )
+        {
+            conf.doubles.push_back(constraints.doubles[i]);
+        }
+
+        srv_req.config = conf;
+
+        ros::service::call("/push_action/TrajectoryPlannerROS/set_parameters", srv_req, srv_resp);
+
+    }
 
 }
 

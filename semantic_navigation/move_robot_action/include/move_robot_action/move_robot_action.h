@@ -54,12 +54,22 @@
 #include <costmap_2d/costmap_2d_ros.h>
 #include <costmap_2d/costmap_2d.h>
 
+#include <semantic_costmap/semantic_costmap_ros.h> 
 #include <semantic_planner_global/semantic_planner_global.h>
-#include <semantic_planner_local/semantic_planner_local.h> 
+#include <semantic_planner_local/semantic_planner_local.h>
+#include <sem_nav_msgs/GetPlanObject.h> 
+#include <sem_nav_msgs/SemanticPose.h> 
+#include <sem_nav_msgs/Constraints.h> 
 
 #include <nav_core/base_local_planner.h>
 #include <nav_core/base_global_planner.h>
+#include <goal_monitor/goal_monitor.h>
+
 #include <pluginlib/class_loader.h> 
+
+#include <dynamic_reconfigure/DoubleParameter.h>
+#include <dynamic_reconfigure/Reconfigure.h>
+#include <dynamic_reconfigure/Config.h>  
 
 namespace move_robot_action 
 {
@@ -105,12 +115,16 @@ namespace move_robot_action
          * @param global_plan A reference to the global plan being used
          * @return True if processing of the goal is done, false otherwise
          */
-        bool executeCycle(geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan);
+        bool executeCycle(const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& global_plan);
 
     protected:
 		bool initialized_;
 
 	private:
+
+        bool planService(nav_msgs::GetPlan::Request &req, nav_msgs::GetPlan::Response &resp);
+
+        void localizationCb(const sem_nav_msgs::SemanticPose::ConstPtr& pose);
 
 		/*
          * @brief  Make a new global plan
@@ -139,18 +153,27 @@ namespace move_robot_action
 
 		void resetState();
 
+        void goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal);
+
+        void constraintsCB(const sem_nav_msgs::Constraints::ConstPtr& constraints);
+        void updateSemanticCostmapConstraints(const sem_nav_msgs::SemanticCostmapConstraints& semantic_costmap_constraints);
+        void updateLocalPlannerConstraints(const sem_nav_msgs::LocalPlannerConstraints& lpc);
+
 		tf::TransformListener& tf_;
 		MoveRobotActionServer* as_;
 
 		/**
          * @brief To store copies of global and local costmaps
          */
-        costmap_2d::Costmap2DROS* planner_costmap_, *controller_costmap_;
+        semantic_costmap::SemanticCostmapROS* global_costmap_;
+        costmap_2d::Costmap2DROS* local_costmap_;
 
         //semantic_planner::SemanticPlannerGlobal* planner_; 
         //semantic_planner::SemanticPlannerLocal* controller_;
-        boost::shared_ptr<nav_core::BaseGlobalPlanner> planner_;
-        boost::shared_ptr<nav_core::BaseLocalPlanner> controller_;
+        semantic_planner::SemanticPlannerGlobal* planner_;
+        semantic_planner::SemanticPlannerLocal* controller_;
+        semantic_planner::GoalMonitor* goal_monitor_;
+
         pluginlib::ClassLoader<nav_core::BaseGlobalPlanner> bgp_loader_;
         pluginlib::ClassLoader<nav_core::BaseLocalPlanner> blp_loader_;
 
@@ -184,7 +207,14 @@ namespace move_robot_action
         boost::recursive_mutex configuration_mutex_;
         bool setup_, p_freq_change_, c_freq_change_;
 
-        ros::Publisher vel_pub_;       
+        ros::Publisher vel_pub_, action_goal_pub_;
+        ros::Subscriber goal_sub_, constraints_sub_; 
+
+        ros::ServiceServer make_plan_srv_;  
+
+        sem_nav_msgs::SemanticPose robot_pose; 
+
+        sem_nav_msgs::Constraints constraints_;   
 
 
 	};

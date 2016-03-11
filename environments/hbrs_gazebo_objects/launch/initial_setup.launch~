@@ -63,7 +63,7 @@
     	<param name="couchl" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/couchl.urdf" />
 	
     	<!-- spawn uploaded wall model -->
-    	<node name="spawn_couchl_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couchl -x 3.0 -y -2.0 -z 0 -R 0 -P 0 -Y -1.57 -model couchl_1" respawn="false" output="screen" />
+    	<node name="spawn_couchl_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couchl -x 3.0 -y -2.0 -z 0 -R 0 -P 0 -Y -1.59 -model couchl_1" respawn="false" output="screen" />
 
 	<!-- spawn uploaded wall model -->
     	<node name="spawn_couchl_2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couchl -x 5.0 -y 0.25 -z 0 -R 0 -P 0 -Y 0 -model couchl_2" respawn="false" output="screen" />
@@ -87,12 +87,14 @@
 
         <!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	<!-- send corrogated_box urdf to param server -->
-    	<param name="couch" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/corrogated_box.urdf" />
+    	<param name="corrogated_box" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/corrogated_box.urdf" />
 	
     	<!-- spawn uploaded corrogated_box model -->
-    	<node name="spawn_corrogated_box1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couch  -x 1.5 -y 1.50 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box1" respawn="false" output="screen" />
-    	<node name="spawn_corrogated_box2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param couch  -x 1.25 -y -1.0 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box2" respawn="false" output="screen" />
-
+    	<node name="spawn_corrogated_box1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 1.0 -y -1.6 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box1" respawn="false" output="screen" />
+    	<!--<node name="spawn_corrogated_box2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 5.46 -y -1.05 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box2" respawn="false" output="screen" /> -->
+        <!--<node name="spawn_box_1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 1.46 -y -1.05 -z 0.01 -R 0 -P 0 -Y 0 -model box_1" respawn="false" output="screen" />-->
+        
+	
 
 
 

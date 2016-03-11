@@ -48,7 +48,7 @@ namespace semantic_navigation_layers
 {
 	InflateObjects::InflateObjects(costmap_2d::Costmap2D* parent, ros::NodeHandle& nh, tf::TransformListener *tf, std::string object_type)
 		:  nh_(nh), tf_(tf), object_type_(object_type),
-		   inscribed_radius_(0.25),
+		   inscribed_radius_(0.26),
 		   inflation_radius_(0.50),
 		   weight_(100),
   		   cell_inflation_radius_(0),

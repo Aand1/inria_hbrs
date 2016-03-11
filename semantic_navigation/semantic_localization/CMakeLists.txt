@@ -7,9 +7,9 @@ find_package(catkin REQUIRED COMPONENTS
   sem_nav_msgs
   tf
   message_generation
+  semantic_map
 )
 
-find_package(semantic_map REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS include
@@ -32,7 +32,7 @@ add_library(semantic_localization
 target_link_libraries(semantic_localization
   ${catkin_LIBRARIES}
   ${roscpp_INCLUDE_DIRS}
-  ${semantic_map_LIBRARIES}
+  semantic_map
 )
 
 add_executable(semantic_localization_node

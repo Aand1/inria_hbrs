@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 	{
 		pose.executeCycle();
 
-		rate.sleep();
+		//rate.sleep();
 
 	}
 

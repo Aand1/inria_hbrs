@@ -48,7 +48,7 @@
 //#include <semantic_planner_global/quadratic_calculator.h>
 
 //#include <semantic_planner_global/gradient_path.h>
-#include <global_planner/dijkstra.h>
+
 #include <global_planner/astar.h>
 #include <global_planner/grid_path.h>
 #include <global_planner/gradient_path.h> 
@@ -119,13 +119,20 @@ void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2D* costmap,
         private_nh.param("use_dijkstra", use_dijkstra, true);
         if (use_dijkstra)
         {
-            DijkstraExpansion* de = new DijkstraExpansion(costmap_, p_calc_, cx, cy);
+            DijkstraExpansion* de = new DijkstraExpansion(p_calc_, cx, cy);
             if(!old_navfn_behavior_)
                 de->setPreciseStart(true);
             planner_ = de;
+            
         }
         //else
             //planner_ = new AStarExpansion(p_calc_, cx, cy);
+
+	SemanticDijkstra* sde = new SemanticDijkstra(costmap_, p_calc_, cx, cy);
+        if(!old_navfn_behavior_)
+            sde->setPreciseStart(true);
+        splanner_ = sde;
+
 
         bool use_grid_path;
         private_nh.param("use_grid_path", use_grid_path, false);
@@ -140,6 +147,8 @@ void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2D* costmap,
 
         private_nh.param("allow_unknown", allow_unknown_, true);
         planner_->setHasUnknown(allow_unknown_);
+        splanner_->setHasUnknown(allow_unknown_);
+      
         private_nh.param("planner_window_x", planner_window_x_, 0.0);
         private_nh.param("planner_window_y", planner_window_y_, 0.0);
         private_nh.param("default_tolerance", default_tolerance_, 0.0);
@@ -174,11 +183,15 @@ void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2D* costmap,
 void GlobalPlanner::reconfigureCB(semantic_planner_global::GlobalPlannerConfig& config, uint32_t level) 
 {
     planner_->setLethalCost(config.lethal_cost);
+    splanner_->setLethalCost(config.lethal_cost);
     path_maker_->setLethalCost(config.lethal_cost);
     planner_->setNeutralCost(config.neutral_cost);
     planner_->setFactor(config.cost_factor);
+    splanner_->setNeutralCost(config.neutral_cost);
+    splanner_->setFactor(config.cost_factor);
     publish_potential_ = config.publish_potential;
     //orientation_filter_->setMode(config.orientation_mode);
+
 }
 
 
@@ -233,13 +246,13 @@ bool GlobalPlanner::worldToMap(double wx, double wy, double& mx, double& my)
 }
 
 bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
-                           std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object) 
+                      std::vector<geometry_msgs::PoseStamped>& plan) 
 {
-    return makePlan(start, goal, default_tolerance_, plan, object);
+    return makePlan(start, goal, default_tolerance_, plan);
 }
 
 bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
-                           double tolerance, std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object) 
+                           double tolerance, std::vector<geometry_msgs::PoseStamped>& plan)
 {
     
     boost::mutex::scoped_lock lock(mutex_);
@@ -318,13 +331,13 @@ bool GlobalPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geom
 
     outlineMap(costmap_->getCharMap(), nx, ny, costmap_2d::LETHAL_OBSTACLE);
 
-    bool found_legal = planner_->computePotentials(costmap_->getCharMap(), start_x, start_y, goal_x, goal_y,
-                                                    nx * ny * 2, potential_array_, object);
+    bool found_legal = planner_->calculatePotentials(costmap_->getCharMap(), start_x, start_y, goal_x, goal_y,
+                                                    nx * ny * 2, potential_array_);
 
     if(!old_navfn_behavior_)
         planner_->clearEndpoint(costmap_->getCharMap(), potential_array_, goal_x_i, goal_y_i, 2);
-    if(publish_potential_)
-        publishPotential(potential_array_);
+    //if(publish_potential_)
+    //    publishPotential(potential_array_);
 
     if (found_legal) {
         //extract the plan

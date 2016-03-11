@@ -28,6 +28,10 @@ add_message_files(
     LayerConstraints.msg
     SemanticCostmapConstraints.msg
     Constraints.msg
+
+    BestPath.msg 
+
+    TaskPlannerGoal.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -40,7 +44,9 @@ add_action_files(
   DIRECTORY action
   FILES
     Push.action
+    Tap.action
     MoveRobot.action
+    SemanticPlanner.action
 )
 
 generate_messages(

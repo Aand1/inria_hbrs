@@ -147,18 +147,18 @@ namespace semantic_navigation_layers
 		    std::string raytrace_range_param_name, obstacle_range_param_name;
 
 		    // get the obstacle range for the sensor
-		    double obstacle_range = 7.5;
-		    if (source_node.searchParam("obstacle_range", obstacle_range_param_name))
+		    double obstacle_range = 5.0;
+		/*    if (source_node.searchParam("obstacle_range", obstacle_range_param_name))
 		    {
 		      source_node.getParam(obstacle_range_param_name, obstacle_range);
-		    }
+		    }*/
 
 		    // get the raytrace range for the sensor
-		    double raytrace_range = 7.5;
-		    if (source_node.searchParam("raytrace_range", raytrace_range_param_name))
+		    double raytrace_range = 5.0;
+		/*    if (source_node.searchParam("raytrace_range", raytrace_range_param_name))
 		    {
 		      source_node.getParam(raytrace_range_param_name, raytrace_range);
-		    }
+		    }*/
 
 		    ROS_DEBUG("Creating an observation buffer for source %s, topic %s, frame %s", source.c_str(), topic.c_str(),
 		              sensor_frame.c_str());

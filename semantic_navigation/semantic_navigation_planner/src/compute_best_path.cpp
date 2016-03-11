@@ -61,8 +61,9 @@ namespace semantic_navigation_planner
 
     	// initialize service query for make plan
         
-        std::string move_robot_service = "/move_base/NavfnROS/make_plan";
+        std::string move_robot_service = "/move_robot_action/make_plan";
         std::string push_action_service = "/push_action/make_plan";
+        std::string tap_action_service = "/tap_action/make_plan";
 
         std_msgs::Int32 size;
         size.data = 3;
@@ -82,11 +83,11 @@ namespace semantic_navigation_planner
 
 
 
-    /*    while(!ros::service::waitForService(move_robot_service, ros::Duration(3.0))) 
+        while(!ros::service::waitForService(move_robot_service, ros::Duration(3.0))) 
         {
             ROS_ERROR("Service %s not available - waiting.", move_robot_service.c_str());
         }
-        move_robot_client = nh_.serviceClient<nav_msgs::GetPlan>(move_robot_service, true);*/
+        move_robot_client = nh_.serviceClient<nav_msgs::GetPlan>(move_robot_service, true);
 
         while(!ros::service::waitForService(push_action_service, ros::Duration(3.0))) 
         {
@@ -94,17 +95,159 @@ namespace semantic_navigation_planner
         }
         push_action_client = nh_.serviceClient<sem_nav_msgs::GetPlanObject>(push_action_service, true);
 
+        while(!ros::service::waitForService(tap_action_service, ros::Duration(3.0))) 
+        {
+            ROS_ERROR("Service %s not available - waiting.", tap_action_service.c_str());
+        }
+        tap_action_client = nh_.serviceClient<sem_nav_msgs::GetPlanObject>(tap_action_service, true);
+
     }
 
-    void ComputeBestPath::computeBestPath(const geometry_msgs::PoseStamped start, const geometry_msgs::PoseStamped goal)
+    sem_nav_msgs::BestPath ComputeBestPath::computeBestPath(const geometry_msgs::PoseStamped start, const geometry_msgs::PoseStamped goal)
     {
-        
+        clearPublish();
+
+        sem_nav_msgs::BestPath best_path;
+
         std::list<semantic_map::Object> object_list;
         semantic_map_query_->getObjectsDynamic(object_list, "LightObject");
         object_list.remove_if (is_not_light_object()); 
         
+        sem_nav_msgs::GetPlanObject push_action_srv;
+        sem_nav_msgs::GetPlanObject tap_action_srv;
+        nav_msgs::GetPlan move_robot_srv;
+        nav_msgs::Path path_plan;
+        std::list<sem_nav_msgs::BestPath> paths;
 
-        std_msgs::String goal_object;       
+        std::list<semantic_map::Object>::iterator objects_it = object_list.begin();
+        //std::list<sem_nav_msgs::BestPath>::iterator costs_it = costs_list.begin();
+
+        for (objects_it = object_list.begin(); objects_it != object_list.end(); objects_it++)
+        {
+            semantic_map::Object& object = *objects_it;
+
+            if (object.semantics.affordance.compare("Push")==0)
+            {
+                push_action_srv.request.start = start;
+                push_action_srv.request.goal = goal;
+                push_action_srv.request.object = object;
+
+                if(push_action_client.call(push_action_srv))
+                {
+                    
+                    path_plan = push_action_srv.response.plan;
+
+                    sem_nav_msgs::BestPath path;
+
+                    path.cost.data = getPathCost(path_plan);
+
+                    path.category = object.semantics.sub_category;
+                    path.instance = object.instance.name;
+                    paths.push_back(path);
+                    //ROS_INFO_STREAM(path_plan.poses.size());
+
+                    int index =0;
+                    //publishGoalsObject(push_action_srv.response.goals);
+                    publishPlan(path_plan, index);
+                }
+            }
+
+            else if (object.semantics.affordance.compare("Tap")==0)
+            {
+                tap_action_srv.request.start = start;
+                tap_action_srv.request.goal = goal;
+                tap_action_srv.request.object = object;
+
+                if(tap_action_client.call(tap_action_srv))
+                {
+                    
+                    path_plan = tap_action_srv.response.plan;
+
+                    sem_nav_msgs::BestPath path;
+
+                    path.cost.data = getPathCost(path_plan);
+
+                    path.category = object.semantics.sub_category;
+                    path.instance = object.instance.name;
+                    paths.push_back(path);
+                    //ROS_INFO_STREAM(path_plan.poses.size());
+
+                    int index =0;
+                    //publishGoalsObject(push_action_srv.response.goals);
+                    publishPlan(path_plan, index);
+                }
+            }
+        }
+
+        if(move_robot_client.call(move_robot_srv))
+        {
+                    
+            path_plan = move_robot_srv.response.plan;
+
+            sem_nav_msgs::BestPath path;
+
+            path.cost.data = getPathCost(path_plan);
+
+            path.category = "robot";
+            paths.push_back(path);
+                    //ROS_INFO_STREAM(path_plan.poses.size());
+
+            int index = 2;
+                    //publishGoalsObject(push_action_srv.response.goals);
+            publishPlan(path_plan, index);
+        }
+
+        best_path.cost.data = 1000;
+
+        std::list<sem_nav_msgs::BestPath>::iterator bp_it = paths.begin();
+        //std::list<sem_nav_msgs::BestPath>::iterator costs_it = costs_list.begin();
+
+        for (bp_it = paths.begin(); bp_it != paths.end(); bp_it++)
+        {
+            sem_nav_msgs::BestPath& best_path_temp = *bp_it;
+
+	    ROS_INFO_STREAM(best_path_temp);
+
+            if (best_path_temp.cost.data < best_path.cost.data && best_path_temp.cost.data != 0)
+            {
+                best_path = best_path_temp;
+            }
+
+        }
+        ROS_INFO_STREAM("---------------");
+        ROS_INFO_STREAM(best_path);
+
+        /*    else if (object.semantics.affordance.compare("Tap")==0)
+            {
+                push_action_srv.request.start = start;
+                push_action_srv.request.goal = goal;
+                push_action_srv.request.object = object;
+
+                if(push_action_client.call(push_action_srv))
+                {
+                    
+                    path_plan = push_action_srv.response.plan;
+
+                    sem_nav_msgs::BestPath path;
+
+                    path.cost.data = getPathCost(path_plan);
+
+                    path.entity = object.semantics.sub_category;
+                    paths.push_back(path);
+                    ROS_INFO_STREAM(path_plan.poses.size());
+
+                    int index =0;
+                    //publishGoalsObject(push_action_srv.response.goals);
+                    publishPlan(path_plan, index);
+                }
+            }*/
+
+        
+
+        ros::Duration(2).sleep();
+        clearPublish();
+
+/*        std_msgs::String goal_object;       
 
         std::list<double> cost_list;
         cost_list.resize(object_list.size());
@@ -146,9 +289,9 @@ namespace semantic_navigation_planner
 
             }
 
-        }
+        }*/
 
-        
+        return best_path;     
 
     }
 
@@ -188,6 +331,30 @@ namespace semantic_navigation_planner
         paths_pub.publish(path_marker->marker_array);
         
     }
+
+    void ComputeBestPath::publishGoalsObject(sem_nav_msgs::MoveObjectGoals goals)
+    {
+        geometry_msgs::Point p;
+        int index = 2;
+          
+        goal_marker->addPoint(goals.approach_object, index);
+
+        goal_marker->addPoint(goals.move_object, index);
+
+        goal_marker->addPoint(goals.reach_goal, index);
+
+        goals_pub.publish(goal_marker->marker_array);   
+       
+
+    }
+
+    void ComputeBestPath::clearPublish()
+    {
+        goal_marker->deleteAll();
+        path_marker->deleteAll();
+        paths_pub.publish(path_marker->marker_array);
+        goals_pub.publish(goal_marker->marker_array);
+    } 
 
 
 /*    double ComputeBestPath::getObjectPlanCost(const geometry_msgs::PoseStamped robot_pose, const geometry_msgs::PoseStamped robot_goal)
@@ -496,6 +663,8 @@ namespace semantic_navigation_planner
         return best_path;
 
     }*/
+
+    
 
 }
 

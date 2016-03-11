@@ -1,0 +1,330 @@
+- instance: couchl_1
+  geometry:
+    pose:
+      orientation:
+        y: 0
+        z: -0.71
+        w: 0.7
+        x: 0
+      position:
+        z: 0
+        y: -1.99
+        x: 2.99
+    bounding_box:
+      vertex-1:
+        - 4.15
+        - -2.61
+        - 0
+      vertex-4:
+        - 1.85
+        - -2.66
+        - 0
+      vertex-3:
+        - 1.82
+        - -1.36
+        - 0
+      vertex-2:
+        - 4.12
+        - -1.31
+        - 0
+  semantics:
+    sub_category: Couch
+    semantic_positions:
+      position-1:
+        - 2.99
+        - -3.29
+        - 0
+      position-2:
+        - 3.79
+        - -1.99
+        - 0
+      position-3:
+        - 2.99
+        - -0.6899999999999999
+        - 0
+      position-4:
+        - 2.19
+        - -1.99
+        - 0
+      position-5:
+        - 2.13
+        - -0.5
+        - 0
+      position-6:
+        - 2.13
+        - 0.51
+        - 0
+      position-7:
+        - 1.23
+        - 0.51
+        - 0
+      position-8:
+        - 1.23
+        - -0.5
+        - 0
+    category: HeavyObject
+    affordance: ""
+- instance: couchl_2
+  geometry:
+    pose:
+      position:
+        x: 4.99
+        y: 0.24
+        z: 0
+      orientation:
+        x: 0
+        y: 0
+        z: 0
+        w: 0.99
+    bounding_box:
+      vertex-1:
+        - 4.34
+        - -0.96
+        - 0
+      vertex-2:
+        - 5.64
+        - -0.95
+        - 0
+      vertex-3:
+        - 5.63
+        - 1.44
+        - 0
+      vertex-4:
+        - 4.33
+        - 1.43
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Couch
+    semantic_positions:
+      position-1:
+        - 4.98
+        - -0.5600000000000001
+        - 0
+      position-2:
+        - 6.33
+        - 0.23
+        - 0
+      position-3:
+        - 4.98
+        - 1.03
+        - 0
+      position-4:
+        - 3.63
+        - 0.23
+        - 0
+      position-5:
+        - 2.13
+        - -0.5
+        - 0
+      position-6:
+        - 2.13
+        - 0.51
+        - 0
+      position-7:
+        - 1.23
+        - 0.51
+        - 0
+      position-8:
+        - 1.23
+        - -0.5
+        - 0
+    affordance: ""
+- instance: table_tv_1
+  geometry:
+    pose:
+      position:
+        x: 2.98
+        y: 2.17
+        z: 0
+      orientation:
+        x: 0
+        y: 0
+        z: -0.7
+        w: 0.7
+    bounding_box:
+      vertex-1:
+        - 3.82
+        - 1.76
+        - 0
+      vertex-2:
+        - 3.83
+        - 2.56
+        - 0
+      vertex-3:
+        - 2.13
+        - 2.57
+        - 0
+      vertex-4:
+        - 2.12
+        - 1.77
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: TvTable
+    semantic_positions:
+      position-1:
+        - 2.98
+        - 1.16
+        - 0
+      position-2:
+        - 3.53
+        - 2.17
+        - 0
+      position-3:
+        - 2.98
+        - 3.17
+        - 0
+      position-4:
+        - 2.42
+        - 2.17
+        - 0
+      position-5:
+        - 2.13
+        - -0.5
+        - 0
+      position-6:
+        - 2.13
+        - 0.51
+        - 0
+      position-7:
+        - 1.23
+        - 0.51
+        - 0
+      position-8:
+        - 1.23
+        - -0.5
+        - 0
+    affordance: ""
+- instance: couchs_1
+  geometry:
+    pose:
+      position:
+        x: 3.91
+        y: 0.25
+        z: 0.29
+      orientation:
+        x: 0
+        y: 0
+        z: 0.99
+        w: 0
+    bounding_box:
+      vertex-1:
+        - 4.56
+        - 0.99
+        - 0
+      vertex-2:
+        - 3.26
+        - 1
+        - 0
+      vertex-3:
+        - 3.25
+        - -0.49
+        - 0
+      vertex-4:
+        - 4.55
+        - -0.5
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Couch
+    semantic_positions:
+      position-1:
+        - 3.91
+        - -0.55
+        - 0
+      position-2:
+        - 4.81
+        - 0.25
+        - 0
+      position-3:
+        - 3.91
+        - 1.05
+        - 0
+      position-4:
+        - 3.01
+        - 0.25
+        - 0
+      position-5:
+        - 2.13
+        - -0.5
+        - 0
+      position-6:
+        - 2.13
+        - 0.51
+        - 0
+      position-7:
+        - 1.23
+        - 0.51
+        - 0
+      position-8:
+        - 1.23
+        - -0.5
+        - 0
+    affordance: ""
+- instance: corrogated_box1
+  geometry:
+    pose:
+      position:
+        x: 1.68
+        y: 0
+        z: 0.21
+      orientation:
+        x: 0
+        y: 0
+        z: 0
+        w: 0.99
+    bounding_box:
+      vertex-1:
+        - 1.28
+        - -0.45
+        - 0
+      vertex-2:
+        - 2.08
+        - -0.45
+        - 0
+      vertex-3:
+        - 2.08
+        - 0.46
+        - 0
+      vertex-4:
+        - 1.28
+        - 0.46
+        - 0
+  semantics:
+    category: LightObject
+    sub_category: Box
+    semantic_positions:
+      position-1:
+        - 1.68
+        - -0.5
+        - 0
+      position-2:
+        - 2.13
+        - 0
+        - 0
+      position-3:
+        - 1.68
+        - 0.51
+        - 0
+      position-4:
+        - 1.23
+        - 0
+        - 0
+      position-5:
+        - 2.13
+        - -0.5
+        - 0
+      position-6:
+        - 2.13
+        - 0.51
+        - 0
+      position-7:
+        - 1.23
+        - 0.51
+        - 0
+      position-8:
+        - 1.23
+        - -0.5
+        - 0
+    affordance: Push

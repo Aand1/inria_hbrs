@@ -50,11 +50,16 @@ SemanticLocalization::SemanticLocalization()
     private_nh.param<std::string>("map_frame", map_frame, "map");
     private_nh.param<std::string>("base_frame", base_frame, "/base_link");
   
-    semantic_localization_publisher = nh.advertise<sem_nav_msgs::SemanticPose>("semantic_localization", 1, true);
+    semantic_localization_publisher = nh.advertise<sem_nav_msgs::SemanticPose>("semantic_localization", 1);
 
     semantic_map_sub_ = nh.subscribe("semantic_map_message", 1, &SemanticLocalization::semanticMapMessageCallback, this);
 
     tf_prefix = tf::getPrefixParam(private_nh);
+
+    semantic_map_query_ = new semantic_map::SemanticMap(nh);
+
+    
+    semantic_map_query_->getRegions(region_list);
 
     //query_regions = new query_semantic_map::QueryRegions(nh);
 
@@ -88,7 +93,7 @@ void SemanticLocalization::executeCycle()
 	{
 		robot_pose.geometric_pose = getGeometricPose();
 
-		robot_pose.semantic_pose = getSemanticPose();
+		robot_pose.semantic_pose = getSemanticPose(robot_pose.geometric_pose);
     //ROS_INFO_STREAM("Publishing semantic robot localization");
 		publishSemanticLocalization();
 	}
@@ -97,11 +102,29 @@ void SemanticLocalization::executeCycle()
 
 }
 
-semantic_map::RegionInstance SemanticLocalization::getSemanticPose()
+semantic_map::RegionInstance SemanticLocalization::getSemanticPose(geometry_msgs::PoseStamped& geometric_pose)
 {
 	//std::string instance = livingroom-01;
+  semantic_map::RegionInstance current_position;
 
-	semantic_map::RegionInstance current_position;
+
+  std::list<semantic_map::Region>::iterator regions_it = region_list.begin();
+        //std::list<sem_nav_msgs::BestPath>::iterator costs_it = costs_list.begin();
+
+  for (regions_it = region_list.begin(); regions_it != region_list.end(); regions_it++)
+  {
+    semantic_map::Region& region = *regions_it;
+
+    if ( inObjectBoundingBox(region, geometric_pose.pose.position.x, geometric_pose.pose.position.y) )
+    {
+        
+        current_position.name = region.instance.name;
+    }
+
+
+  }
+
+	
 
 	//instance.name = "livingroom-01";
 
@@ -136,12 +159,50 @@ geometry_msgs::PoseStamped SemanticLocalization::getGeometricPose()
 
 void SemanticLocalization::publishSemanticLocalization()
 {
-	semantic_localization_publisher.publish(robot_pose);
+	//ROS_INFO_STREAM(robot_pose.semantic_pose);
+  semantic_localization_publisher.publish(robot_pose);
 }
 
 void SemanticLocalization::querySemanticMap()
 {
     regions_list;
+}
+
+
+bool SemanticLocalization::inObjectBoundingBox(semantic_map::Region& region_, unsigned int x, unsigned int y)
+{ 
+    inside_ = false;
+    
+    
+    for (l_ = 0; l_ < 4; l_++) 
+    {
+        polyX[l_] = region_.geometry.bounding_box.vertices[l_].x;
+        polyY[l_] = region_.geometry.bounding_box.vertices[l_].y;
+        
+    }
+   
+    oddNodes_= false;
+    j_ = 3;
+    for (i_=0; i_<4; i_++) 
+    {
+        if ((polyY[i_]< y && polyY[j_]>=y || polyY[j_]< y && polyY[i_]>=y)
+           &&  (polyX[i_]<=x || polyX[j_]<=x)) 
+        {
+          if (polyX[i_]+(y-polyY[i_])/(polyY[j_]-polyY[i_])*(polyX[j_]-polyX[i_])<x) 
+          {
+            oddNodes_ = !oddNodes_; 
+          }
+        }
+        j_ = i_; 
+    }
+   
+    if (oddNodes_ == true)
+    {
+        inside_ = true;
+    }
+
+   
+    return inside_;
 }
 
 

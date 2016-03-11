@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send chair_wicker urdf to param server -->
+    	<param name="ball" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/ball.urdf" />
+
+	<!-- spawn uploaded wall model -->
+    	<node name="spawn_ball" pkg="gazebo_ros" type="spawn_model" args="-urdf -param ball  -x -0.55 -y 0.99 -z 0.00 -R 0 -P 0 -Y 0.785 -model ball1" respawn="false" output="screen" />
+        <!-- spawn uploaded wall model -->
+    	<node name="spawn_ball" pkg="gazebo_ros" type="spawn_model" args="-urdf -param ball  -x 0.0 -y 0.99 -z 0.00 -R 0 -P 0 -Y 0.785 -model ball2" respawn="false" output="screen" />
+
+	
+</launch>

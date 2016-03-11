@@ -112,7 +112,7 @@ namespace move_object
 	    */
 		void initialize();
 
-        void executeCb(const sem_nav_msgs::PushGoalConstPtr& object_instance);
+        void executeCb(const sem_nav_msgs::PushGoalConstPtr& push_goal);
 
     protected:
         semantic_costmap::SemanticCostmapROS* global_costmap_; 
@@ -124,9 +124,11 @@ namespace move_object
 
   	    bool executeApproachObject(const geometry_msgs::PoseStamped& approach_object);
 
-  	    bool executePushObject(const geometry_msgs::PoseStamped& approach_object);
+  	    //bool executePushObject(const geometry_msgs::PoseStamped& approach_object);
+        bool executePushObject(const geometry_msgs::PoseStamped& move_object, const geometry_msgs::PoseStamped& start);
 
   	    bool executeApproachGoal(const geometry_msgs::PoseStamped& approach_object);
+        bool executeApproachGoal(const geometry_msgs::PoseStamped& approach_object, const geometry_msgs::PoseStamped& start);
 
         void updateParamCb();
 
@@ -135,6 +137,7 @@ namespace move_object
   	    void resetState();
 
         void computeGoals(const geometry_msgs::PoseStamped& reach_goal, sem_nav_msgs::MoveObjectGoals& current_goals);
+        bool nearOtherObjects(double x, double y, semantic_map::Object& object_);
         void findMoveObjectGoal(sem_nav_msgs::MoveObjectGoals& current_goals, const geometry_msgs::PoseStamped object_pose);
 
         double distanceCalculator(double x1, double y1, double x2, double y2)
@@ -165,6 +168,8 @@ namespace move_object
          * @return True if planning succeeded, false otherwise
          */
         bool planService(sem_nav_msgs::GetPlanObject::Request &req, sem_nav_msgs::GetPlanObject::Response &resp);
+
+        void goalCB(const geometry_msgs::PoseStamped::ConstPtr& goal);
     
 
 	    PushActionServer* as_;
@@ -221,6 +226,8 @@ namespace move_object
 
         // ROS publishers
         ros::Publisher paths_pub, goals_pub;
+        ros::Publisher action_goal_pub_;
+        ros::Subscriber goal_sub_; 
 
         ros::ServiceServer make_plan_srv_;
 

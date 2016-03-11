@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	ros::init(argc, argv, "move_robot_action_node");
+	ros::init(argc, argv, "move_robot_action");
 	tf::TransformListener tf(ros::Duration(10));
 
 	move_robot_action::MoveRobotAction move_robot_action( tf );

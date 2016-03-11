@@ -48,16 +48,27 @@
 #include <nav_core/base_global_planner.h>
 #include <nav_msgs/GetPlan.h>
 #include <dynamic_reconfigure/server.h>
-#include <global_planner/potential_calculator.h>
+//#include <semantic_planner_global/potential_calculator.h>
+//#include <semantic_planner_global/expander.h>
+//#include <semantic_planner_global/traceback.h>
+//#include <semantic_planner_global/orientation_filter.h>
+
 #include <global_planner/expander.h>
 #include <global_planner/traceback.h>
 #include <global_planner/orientation_filter.h>
-#include <global_planner/GlobalPlannerConfig.h>
+#include <global_planner/potential_calculator.h> 
+#include <semantic_planner_global/GlobalPlannerConfig.h>
+#include <semantic_map/Object.h>
+#include <global_planner/dijkstra.h>
+#include <semantic_planner_global/semantic_dijkstra.h>
+
+
 
 namespace global_planner {
 
 class Expander;
 class GridPath;
+
 
 /**
  * @class PlannerCore
@@ -102,6 +113,9 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
          */
         bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
                       std::vector<geometry_msgs::PoseStamped>& plan);
+        
+        //bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
+        //              std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);
 
         /**
          * @brief Given a goal pose in the world, compute a plan
@@ -111,8 +125,8 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
          * @param plan The plan... filled by the planner
          * @return True if a valid plan was found, false otherwise
          */
-        bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, double tolerance,
-                      std::vector<geometry_msgs::PoseStamped>& plan);
+        bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
+                           double tolerance, std::vector<geometry_msgs::PoseStamped>& plan);
 
         /**
          * @brief  Computes the full navigation function for the map given a point in the world to start from
@@ -162,7 +176,7 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
          */
         void publishPlan(const std::vector<geometry_msgs::PoseStamped>& path);
 
-        bool makePlanService(nav_msgs::GetPlan::Request& req, nav_msgs::GetPlan::Response& resp);
+        //bool makePlanService(nav_msgs::GetPlan::Request& req, nav_msgs::GetPlan::Response& resp);
 
         void mapToWorld(double mx, double my, double& wx, double& wy);
         bool worldToMap(double wx, double wy, double& mx, double& my);
@@ -170,10 +184,13 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
         void publishPotential(float* potential);
         void outlineMap(unsigned char* costarr, int nx, int ny, unsigned char value);
 
-	PotentialCalculator* p_calc_;
-        Expander* planner_;
-        Traceback* path_maker_;
-        OrientationFilter* orientation_filter_;
+        global_planner::PotentialCalculator* p_calc_;
+	global_planner::DijkstraExpansion* planner_;
+        global_planner::SemanticDijkstra* splanner_;
+	
+        global_planner::Traceback* path_maker_;
+        global_planner::OrientationFilter* orientation_filter_;
+        float* potential_array_;
 
     protected:
 
@@ -185,7 +202,7 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
         ros::Publisher plan_pub_;
         bool initialized_, allow_unknown_, visualize_potential_;
 
-    private:
+    //private:
         
 
         double planner_window_x_, planner_window_y_, default_tolerance_;
@@ -193,23 +210,23 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
         boost::mutex mutex_;
         ros::ServiceServer make_plan_srv_;
 
+        
+
         bool publish_potential_;
         ros::Publisher potential_pub_;
         int publish_scale_;
 
-
         unsigned char* cost_array_;
-        float* potential_array_;
         unsigned int start_x_, start_y_, end_x_, end_y_;
 
         bool old_navfn_behavior_;
         float convert_offset_;
 
-        dynamic_reconfigure::Server<global_planner::GlobalPlannerConfig> *dsrv_;
-        void reconfigureCB(global_planner::GlobalPlannerConfig &config, uint32_t level);
+        dynamic_reconfigure::Server<semantic_planner_global::GlobalPlannerConfig> *dsrv_;
+        void reconfigureCB(semantic_planner_global::GlobalPlannerConfig &config, uint32_t level);
 
 };
 
-} //end namespace global_planner
+} //end namespace semantic_planner
 
 #endif

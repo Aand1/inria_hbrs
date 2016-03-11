@@ -1,0 +1,4 @@
+string category
+string sub_category
+SemanticPositions semantic_positions
+string affordance

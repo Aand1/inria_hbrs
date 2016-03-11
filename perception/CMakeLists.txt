@@ -67,6 +67,8 @@ target_link_libraries(dummy_perception
   semantic_map
 )
 
+add_library(gazebo_ros_objects_state_publisher plugins/gazebo_ros_objects_state_publisher.cpp)
+target_link_libraries(gazebo_ros_objects_state_publisher ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(dummy_perception_node src/dummy_perception_node.cpp)
 target_link_libraries(dummy_perception_node ${catkin_LIBRARIES} dummy_perception)
@@ -83,8 +85,7 @@ target_link_libraries(write_yaml ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES} seman
 ##add_library(hello_world SHARED plugins/hello_world.cc)
 #target_link_libraries(hello_world ${GAZEBO_LIBRARIES})
 
-add_library(gazebo_ros_objects_state_publisher plugins/gazebo_ros_objects_state_publisher.cpp)
-target_link_libraries(gazebo_ros_objects_state_publisher ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
 
 
 

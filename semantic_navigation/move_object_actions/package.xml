@@ -51,7 +51,6 @@
   <build_depend>semantic_planner_local</build_depend>
   <build_depend>goal_monitor</build_depend>
   <build_depend>semantic_map</build_depend>
-  <build_depend>costmap_2d</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
  
 

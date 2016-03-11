@@ -90,6 +90,8 @@ namespace semantic_navigation_layers
     	InflateObjects* io_;
 
         dynamic_reconfigure::Server<semantic_costmap::LightObjectsPluginConfig> *dsrv_;
+
+        bool update_;
       
     };
 }; 

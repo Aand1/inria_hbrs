@@ -1,0 +1,7 @@
+# An action for semantic planning
+
+sem_nav_msgs/TaskPlannerGoal input
+---
+---
+
+

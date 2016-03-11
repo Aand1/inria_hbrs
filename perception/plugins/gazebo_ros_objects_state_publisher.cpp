@@ -149,8 +149,8 @@ void GazeboRosObjectsStatePublisher::publishObjectsState()
 
         else if (objects_state_.model_name[i].compare(0, 6,"couchs") == 0)
         {
-           objects_state_.size[i].x = 1.25;
-           objects_state_.size[i].y = 1.0;
+           objects_state_.size[i].x = 1.0;
+           objects_state_.size[i].y = 1.1;
            objects_state_.size[i].z = 1.0;
 
         }   

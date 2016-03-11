@@ -17,3 +17,4 @@ float32 tolerance
 semantic_map/Object object
 ---
 nav_msgs/Path plan
+sem_nav_msgs/MoveObjectGoals goals

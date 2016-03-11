@@ -13,8 +13,8 @@ local_costmap:
 #        - {name: structural_objects, type: "semantic_costmap::StructuralObjectsLayer"}
 #        - {name: heavy_objects, type: "semantic_costmap::HeavyObjectsLayer"}
 #        - {name: light_objects, type: "semantic_costmap::LightObjectsLayer"}
-#        - {name: stactic_layer,     type: "costmap_2d::StaticLayer"}
-#        - {name: obstacle_layer,     type: "costmap_2d::ObstacleLayer"}
+        - {name: stactic_layer,     type: "costmap_2d::StaticLayer"}
+        - {name: obstacle_layer,     type: "costmap_2d::ObstacleLayer"}
         - {name: inflation_layer,    type: "costmap_2d::InflationLayer"}
 
    

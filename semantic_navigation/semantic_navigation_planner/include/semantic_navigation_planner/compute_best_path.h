@@ -66,6 +66,7 @@
 #include <sem_nav_msgs/MoveObjectGoals.h>
 #include <sem_nav_msgs/MoveObjectPaths.h>
 #include <sem_nav_msgs/SemanticPose.h>
+#include <sem_nav_msgs/BestPath.h> 
 #include <geometry_msgs/PoseStamped.h>  
 #include <visualization_msgs/MarkerArray.h>
 #include <sem_nav_msgs/viz_msgs.h>
@@ -113,7 +114,7 @@ namespace semantic_navigation_planner
 	    double getObjectPlanCost(const geometry_msgs::PoseStamped robot_pose, const geometry_msgs::PoseStamped robot_goal);
 	    double getRobotPlanCost();
 
-	    void computeBestPath(const geometry_msgs::PoseStamped start, const geometry_msgs::PoseStamped goal);
+	    sem_nav_msgs::BestPath computeBestPath(const geometry_msgs::PoseStamped start, const geometry_msgs::PoseStamped goal);
 
 	private:
 		/**
@@ -171,9 +172,10 @@ namespace semantic_navigation_planner
 		const geometry_msgs::PoseStamped object_pose);
 	
 
-		void publishGoals(); 
+		void publishGoalsObject(sem_nav_msgs::MoveObjectGoals goals); 
 		void publishPlans(); 
 		void publishPlan(nav_msgs::Path& plan, int index);
+		void clearPublish();
 
 		double getPathCostForObject(); 
 
@@ -204,6 +206,7 @@ namespace semantic_navigation_planner
 
 	    // Services to get plans from different actions
 	    ros::ServiceClient push_action_client;
+	    ros::ServiceClient tap_action_client;
 	    ros::ServiceClient move_robot_client;
 	    
 	};

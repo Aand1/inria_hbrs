@@ -12,7 +12,7 @@ find_package(catkin REQUIRED
     semantic_costmap
     dynamic_reconfigure
     
-    #sem_nav_msgs
+    sem_nav_msgs
   
 )
 
@@ -47,11 +47,28 @@ target_link_libraries(push_action
   semantic_costmap
 )
 
+add_library(tap_action src/tap_action.cpp)
+target_link_libraries(tap_action
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES} 
+  ${semantic_planner_global_LIBRARIES}
+  ${semantic_planner_local_LIBRARIES}
+  ${goal_monitor_LIBRARIES}
+  semantic_map
+  semantic_costmap
+)
+
 
 add_executable(push_action_node
   src/push_action_node.cpp
 )
 target_link_libraries(push_action_node ${catkin_LIBRARIES} push_action)
+
+add_executable(tap_action_node
+  src/tap_action_node.cpp
+)
+target_link_libraries(tap_action_node ${catkin_LIBRARIES} tap_action)
+
 
 
 

@@ -46,7 +46,8 @@
 #include <semantic_map/query_regions.h>
 #include <semantic_map/SemanticMapMessage.h>
 #include <sem_nav_msgs/SemanticPose.h>
-
+#include <semantic_map/Region.h>
+#include <semantic_map/semantic_map.h>
 
 
 namespace semantic_localization
@@ -61,7 +62,7 @@ namespace semantic_localization
 
 		void executeCycle();
 
-		semantic_map::RegionInstance getSemanticPose();
+		semantic_map::RegionInstance getSemanticPose(geometry_msgs::PoseStamped& geometric_pose);
 
 		geometry_msgs::PoseStamped getGeometricPose();
 
@@ -73,6 +74,13 @@ namespace semantic_localization
 		void semanticMapMessageCallback(const semantic_map::SemanticMapMessage& semantic_map);
 
 	private:
+		bool inObjectBoundingBox(semantic_map::Region& region_, unsigned int x, unsigned int y);
+
+		float  polyX[4], polyY[4];
+     	bool  oddNodes_;
+     	bool inside_;
+     	int i_, j_, k_, l_;
+
 		sem_nav_msgs::SemanticPose robot_pose;
 		semantic_map::RegionList regions_list;
 
@@ -87,6 +95,10 @@ namespace semantic_localization
   		ros::Publisher semantic_localization_publisher;
   		ros::Publisher pose_publisher;
   		ros::Subscriber semantic_map_sub_;
+
+  		//Instance of SemanticMap class to query the semantic map
+		semantic_map::SemanticMap* semantic_map_query_; 
+		std::list<semantic_map::Region> region_list;
 
 	};
 

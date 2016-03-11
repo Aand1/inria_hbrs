@@ -1,5 +1,42 @@
-#ifndef _SEMANTIC_DIJKSTRA_H
-#define _SEMANTIC_DIJKSTRA_H
+/*********************************************************************
+ *
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2008, 2013, Willow Garage, Inc.
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Willow Garage, Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *
+ * Author: Eitan Marder-Eppstein
+ *         David V. Lu!!
+ *********************************************************************/
+#ifndef SEMANTIC_DIJKSTRA_H
+#define SEMANTIC_DIJKSTRA_H
 
 #define PRIORITYBUFSIZE 10000
 #include <math.h>
@@ -7,28 +44,27 @@
 #include <string.h>
 #include <stdio.h>
 
-//#include "semantic_planner_global/semantic_planner_global.h"
 #include <global_planner/planner_core.h>
 #include <global_planner/expander.h>
-#include <costmap_2d/costmap_2d.h>
 #include <semantic_map/Object.h>  
+#include <costmap_2d/costmap_2d.h>
+
+
 
 // inserting onto the priority blocks
 #define push_cur(n)  { if (n>=0 && n<ns_ && !pending_[n] && getCost(costs, n)<lethal_cost_ && currentEnd_<PRIORITYBUFSIZE){ currentBuffer_[currentEnd_++]=n; pending_[n]=true; }}
 #define push_next(n) { if (n>=0 && n<ns_ && !pending_[n] && getCost(costs, n)<lethal_cost_ &&    nextEnd_<PRIORITYBUFSIZE){    nextBuffer_[   nextEnd_++]=n; pending_[n]=true; }}
 #define push_over(n) { if (n>=0 && n<ns_ && !pending_[n] && getCost(costs, n)<lethal_cost_ &&    overEnd_<PRIORITYBUFSIZE){    overBuffer_[   overEnd_++]=n; pending_[n]=true; }}
 
-namespace semantic_planner 
-{
-class SemanticDijkstra : public global_planner::Expander 
-{
+namespace global_planner {
+class SemanticDijkstra : public Expander {
     public:
-        SemanticDijkstra(costmap_2d::Costmap2D* costmap, global_planner::PotentialCalculator* p_calc, int nx, int ny);
+        SemanticDijkstra(costmap_2d::Costmap2D* costmap, PotentialCalculator* p_calc, int nx, int ny);
         ~SemanticDijkstra();
         bool computePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y, int cycles,
-                                float* potential, semantic_map::Object& object );
-        bool calculatePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y, int cycles,
-                                float* potential) {}
+                                float* potential, semantic_map::Object& object);
+        bool calculatePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y,
+                                        int cycles, float* potential) {}
 
         /**
          * @brief  Sets or resets the size of the map
@@ -51,33 +87,9 @@ class SemanticDijkstra : public global_planner::Expander
          * @param potential The potential array in which we are calculating
          * @param n The index to update
          */
-        void updateCell(unsigned char* costs, float* potential, int n); /** updates the cell at index n */
+        void updateCell(unsigned char* costs, float* potential, int n, semantic_map::Object& object); /** updates the cell at index n */
 
-        float getCost(unsigned char* costs, int n) {
-            float c = costs[n];
-
-            if (isMovableObject(n, object_))
-            {
-                c = neutral_cost_;
-                //return c;
-            }
-
-            else if (c < lethal_cost_ - 1 || (unknown_ && c==255)) 
-            {
-                c = c * factor_ + neutral_cost_;
-                if (c >= lethal_cost_)
-                    c = lethal_cost_ - 1;
-                //return c;
-            }
-
-            else
-            {
-                c = lethal_cost_;
-            }
-
-            return c;
-            
-        }
+        float getCost(unsigned char* costs, int n); 
 
         /** block priority buffers */
         int *buffer1_, *buffer2_, *buffer3_; /**< storage buffers for priority blocks */
@@ -85,19 +97,20 @@ class SemanticDijkstra : public global_planner::Expander
         int currentEnd_, nextEnd_, overEnd_; /**< end points of arrays */
         bool *pending_; /**< pending_ cells during propagation */
         bool precise_;
-        unsigned char lethal_cost_, neutral_cost_; 
 
         /** block priority thresholds */
         float threshold_; /**< current threshold */
         float priorityIncrement_; /**< priority threshold increment */
 
-        float  polyX[4], polyY[4];
+	float  polyX[4], polyY[4];
         bool  oddNodes_;
         bool inside_, near_;
         int i_, j_, k_, l_;
-        bool isMovableObject(int n, semantic_map::Object& object);
-        semantic_map::Object object_;
+	bool isMovableObject(int n, semantic_map::Object& object);
+
         costmap_2d::Costmap2D* costmap_;
+        semantic_map::Object object;
+
 };
-} //end namespace semantic_planner
+} //end namespace global_planner
 #endif

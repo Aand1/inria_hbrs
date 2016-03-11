@@ -60,6 +60,7 @@
 #include <semantic_planner_global/GlobalPlannerConfig.h>
 #include <semantic_map/Object.h>
 #include <global_planner/dijkstra.h>
+#include <semantic_planner_global/semantic_dijkstra.h>
 
 
 
@@ -111,10 +112,10 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
          * @return True if a valid plan was found, false otherwise
          */
         bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
-                      std::vector<geometry_msgs::PoseStamped>& plan) {}
+                      std::vector<geometry_msgs::PoseStamped>& plan);
         
-        bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
-                      std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);
+        //bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
+        //              std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);
 
         /**
          * @brief Given a goal pose in the world, compute a plan
@@ -124,8 +125,8 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
          * @param plan The plan... filled by the planner
          * @return True if a valid plan was found, false otherwise
          */
-        bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, double tolerance,
-                      std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object );
+        bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal,
+                           double tolerance, std::vector<geometry_msgs::PoseStamped>& plan);
 
         /**
          * @brief  Computes the full navigation function for the map given a point in the world to start from
@@ -184,7 +185,9 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
         void outlineMap(unsigned char* costarr, int nx, int ny, unsigned char value);
 
         global_planner::PotentialCalculator* p_calc_;
-        global_planner::DijkstraExpansion* planner_;
+	global_planner::DijkstraExpansion* planner_;
+        global_planner::SemanticDijkstra* splanner_;
+	
         global_planner::Traceback* path_maker_;
         global_planner::OrientationFilter* orientation_filter_;
         float* potential_array_;
@@ -199,7 +202,7 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
         ros::Publisher plan_pub_;
         bool initialized_, allow_unknown_, visualize_potential_;
 
-    private:
+    //private:
         
 
         double planner_window_x_, planner_window_y_, default_tolerance_;

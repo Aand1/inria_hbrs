@@ -65,6 +65,27 @@ namespace semantic_costmap
 
     void SemanticCostmapROS::startCostmap()
     {
+        std::vector < boost::shared_ptr<costmap_2d::Layer> > *plugins = layered_costmap_->getPlugins();
+        // check if we're stopped or just paused
+        if (stopped_)
+        {
+            // if we're stopped we need to re-subscribe to topics
+            for (std::vector<boost::shared_ptr<costmap_2d::Layer> >::iterator plugin = plugins->begin(); plugin != plugins->end();
+                ++plugin)
+            {
+              (*plugin)->activate();
+              (*plugin)->reset();
+            }
+            stopped_ = false;
+            stop_publisher_ = false;
+        }
+        stop_updates_ = false;
+          
+
+        // block until the costmap is re-initialized.. meaning one update cycle has run
+        ros::Rate r(100.0);
+        while (ros::ok() && !initialized_)
+           r.sleep();
 
     }
 
@@ -85,11 +106,12 @@ namespace semantic_costmap
         initialized_ = false;
         stopped_ = true; 
 
-        //getCostmap()->resetMaps();
+        getCostmap()->resetMaps();
     }
 
     void SemanticCostmapROS::setParameters(const sem_nav_msgs::SemanticCostmapConstraints& constraints)
     {
+        stopCostmap();
         //ROS_INFO_STREAM("SemanticCostmapROS");
         std::vector < boost::shared_ptr<costmap_2d::Layer> > *plugins = layered_costmap_->getPlugins();
 
@@ -97,12 +119,19 @@ namespace semantic_costmap
             ++plugin)
         {
             std::string plugin_name = (*plugin)->getName();
+
+
             
             for(int i = 0; i < constraints.layer_constraints.size(); i++)
             {
-                if (plugin_name.compare(constraints.layer_constraints[i].name) != 0)
+                //ROS_INFO_STREAM(plugin_name);
+                //ROS_INFO_STREAM(name_ + "/" + constraints.layer_constraints[i].name);
+                //ROS_INFO_STREAM("-----------");
+                if (plugin_name.compare(name_ + "/" + constraints.layer_constraints[i].name) == 0)
                 {
+                    
                     (*plugin)->setParameters(constraints.layer_constraints[i]);
+                    (*plugin)->activate();
                 }
 
             }

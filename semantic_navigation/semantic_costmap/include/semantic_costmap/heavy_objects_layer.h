@@ -90,6 +90,8 @@ namespace semantic_navigation_layers
     	InflateObjects* io_;
 
         dynamic_reconfigure::Server<semantic_costmap::HeavyObjectsPluginConfig> *dsrv_;
+
+        bool update_;
       
     };
 }; 

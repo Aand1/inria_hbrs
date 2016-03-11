@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(semantic_planner_global REQUIRED)
-find_package(sem_nav_msgs REQUIRED)
+
 
 find_package(Boost REQUIRED)
 
@@ -34,7 +34,8 @@ include_directories(
 
 add_library(semantic_planner
  src/compute_best_path.cpp
- src/constraints.cpp
+ src/reasoner.cpp
+ src/semantic_planner.cpp
 )
 target_link_libraries(semantic_planner
   ${catkin_LIBRARIES} 
@@ -48,8 +49,8 @@ target_link_libraries(semantic_planner
 #add_executable(compute_best_path_node src/compute_best_path_node.cpp)
 #target_link_libraries(compute_best_path_node ${catkin_LIBRARIES} semantic_planner)
 
-add_executable(constraints_node src/constraints_node.cpp)
-target_link_libraries(constraints_node ${catkin_LIBRARIES} semantic_planner)
+#add_executable(constraints_node src/constraints_node.cpp)
+#target_link_libraries(constraints_node ${catkin_LIBRARIES} semantic_planner)
 
 add_executable(semantic_planner_node src/semantic_planner_node.cpp)
 target_link_libraries(semantic_planner_node ${catkin_LIBRARIES} semantic_planner)

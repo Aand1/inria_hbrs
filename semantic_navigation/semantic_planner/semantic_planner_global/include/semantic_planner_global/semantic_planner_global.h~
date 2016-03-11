@@ -50,15 +50,11 @@
 #include <semantic_costmap/semantic_costmap_ros.h> 
 #include <semantic_planner_global/planner_core.h>
 #include <string> 
-#include <semantic_planner_global/semantic_dijkstra.h>
-//#include <semantic_planner_global/gradient_path.h> 
-#include <sem_nav_msgs/GetPlanObject.h>
-#include <global_planner/potential_calculator.h>
-//#include <global_planner/expander.h>
-#include <global_planner/traceback.h> 
- 
+#include <global_planner/potential_calculator.h> 
+//#include <semantic_planner_global/semantic_dijkstra.h>
+#include <sem_nav_msgs/GetPlanObject.h> 
 
-using namespace global_planner;
+
 namespace semantic_planner 
 {
 	
@@ -70,56 +66,32 @@ namespace semantic_planner
 		/**
          * @brief  Default constructor for the SemanticPlannerGlobal object
          */
-		SemanticPlannerGlobal();
+		SemanticPlannerGlobal(); 
 
-		/**
-         * @brief  Constructor for the SemanticPlannerGlobal object
-         * @param  tf A reference to a TransformListener
-         */
-        //SemanticPlannerGlobal(std::string name, costmap_2d::Costmap2DROS* costmap);
-        SemanticPlannerGlobal(std::string name, semantic_costmap::SemanticCostmapROS* costmap);
+		SemanticPlannerGlobal(std::string name, semantic_costmap::SemanticCostmapROS* costmap);
 
-        /**
-         * @brief  Default deconstructor for the SemanticPlannerGlobal object
-         */
-        ~SemanticPlannerGlobal();
+		~SemanticPlannerGlobal();
 
         void initialization(std::string name, semantic_costmap::SemanticCostmapROS* costmap);
 
-        /**
-         * @brief  A service call that will return a path for the robot
-         * @param  req The goal request
-         * @param  resp The plan request
-         * @return True if planning succeeded, false otherwise
-         */
         bool planServiceForMoveRobot(nav_msgs::GetPlan::Request &req, nav_msgs::GetPlan::Response &resp);
 
-        /**
-         * @brief  A service call that will return a path for the object to be moved
-         * @param  req The goal request in the form of geometric pose and object to be pushed
-         * @param  resp The plan request
-         * @return True if planning succeeded, false otherwise
-         */
         bool planServiceForMoveObject(sem_nav_msgs::GetPlanObject::Request &req, sem_nav_msgs::GetPlanObject::Response &resp);
 
-
-        bool makePlanObjectApproach(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, 
+    
+    	bool makePlanObjectApproach(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, 
                            std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);
 
         bool makePlanObjectPush(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, 
                            std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);
 
         bool makePlanObject(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, 
-                           std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);      
+                           std::vector<geometry_msgs::PoseStamped>& plan, semantic_map::Object& object);
 
-
-        bool getPlan(double start_x, double start_y, double goal_x, double goal_y,
-                const geometry_msgs::PoseStamped& goal, std::vector<geometry_msgs::PoseStamped>& plan);
-
+        //bool makePlan(const geometry_msgs::PoseStamped& start, const geometry_msgs::PoseStamped& goal, 
+        //                   std::vector<geometry_msgs::PoseStamped>& plan);     
     private:
-        
-    	void resetCostmap();
-    	//costmap_2d::Costmap2DROS* global_costmap_;
+
         semantic_costmap::SemanticCostmapROS* global_costmap_;
 		tf::TransformListener* tf_;
 
@@ -128,17 +100,12 @@ namespace semantic_planner
 
 		ros::ServiceServer make_plan_robot, make_plan_object;
 
-		std::string tf_prefix_;
+		//global_planner::PotentialCalculator* p_calc;
+		//global_planner::SemanticDijkstraExpansion* semantic_planner_;
+		float* potential_array;
 
-		global_planner::PotentialCalculator* p_calc;
-		SemanticDijkstra* semantic_planner;
-        global_planner::Traceback* path_maker;
-	    float* potential_array;
+	};
+}
 
-
-    };
-
-
-} 
 //end namespace semantic_planner
-#endif 
+#endif

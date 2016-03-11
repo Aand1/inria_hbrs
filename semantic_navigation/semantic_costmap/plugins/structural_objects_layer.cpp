@@ -106,6 +106,11 @@ namespace semantic_navigation_layers
     void StructuralObjectsLayer::updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x,
                                             double* min_y, double* max_x, double* max_y)
     {
+        if (!enabled_)
+            return;
+
+        if (!update_)
+            return;
         //matchSize();
 
     	so_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
@@ -118,7 +123,12 @@ namespace semantic_navigation_layers
     void StructuralObjectsLayer::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i,
                                            int max_j)
     {
-    	//do_->updateCosts(heavy_objects_costmap_, min_i, min_j, max_i, max_j);
+    	if (!enabled_)
+            return;
+
+        if (!update_)
+            return;
+        //do_->updateCosts(heavy_objects_costmap_, min_i, min_j, max_i, max_j);
         so_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
 
     	io_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
@@ -135,11 +145,11 @@ namespace semantic_navigation_layers
             unsigned int it = j * span + min_i;
             for (int i = min_i; i < max_i; i++)
             {
-                unsigned char old_cost = master_array[it];
-                if ( old_cost < layer_array[it] )
-                {
-                    master_array[it] = layer_array[it];
-                }
+                //unsigned char old_cost = master_array[it];
+                //if ( old_cost < layer_array[it] )
+                //{
+                master_array[it] = layer_array[it];
+                //}
                 it++;
 
             }
@@ -164,22 +174,31 @@ namespace semantic_navigation_layers
 
     void StructuralObjectsLayer::activate()
     {
+        enabled_ = true;
+        ROS_INFO_STREAM("Started StructuralObjectsLayer");
 
     }
 
     void StructuralObjectsLayer::deactivate()
     {
-        
+        enabled_ = false;
+        update_ = false;
+        ROS_INFO_STREAM("Stopped StructuralObjectsLayer");
     }
 
     void StructuralObjectsLayer::reset()
     {
-        
+        update_ = true;
     }
 
     void StructuralObjectsLayer::setParameters(const sem_nav_msgs::LayerConstraints& constraints)
     {
+        ROS_INFO_STREAM("Updating StructuralObjectsLayer CONSTRAINTS");
+        local_costmap_->resizeMap(300.0, 350.0, 0.05, -7.50, -8.75);
+        update_ = true;
         io_->setInflationParameters(constraints.inflation_radius, constraints.context_factor);
     }
+
+
     
 }

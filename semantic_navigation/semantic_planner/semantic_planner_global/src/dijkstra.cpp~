@@ -37,10 +37,18 @@
  *********************************************************************/
 #include <semantic_planner_global/dijkstra.h>
 #include <algorithm>
-namespace semantic_planner {
 
-DijkstraExpansion::DijkstraExpansion(PotentialCalculator* p_calc, int nx, int ny) :
-        Expander(p_calc, nx, ny), pending_(NULL), precise_(false) {
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+
+typedef boost::geometry::model::d2::point_xy<double> point_type;
+typedef boost::geometry::model::polygon<point_type> polygon_type;
+
+namespace global_planner {
+
+SemanticDijkstra::SemanticDijkstra(costmap_2d::Costmap2D* costmap, PotentialCalculator* p_calc, int nx, int ny) :
+        Expander(p_calc, nx, ny), pending_(NULL), precise_(false), costmap_(costmap) {
     // priority buffers
     buffer1_ = new int[PRIORITYBUFSIZE];
     buffer2_ = new int[PRIORITYBUFSIZE];
@@ -49,7 +57,7 @@ DijkstraExpansion::DijkstraExpansion(PotentialCalculator* p_calc, int nx, int ny
     priorityIncrement_ = 2 * neutral_cost_;
 }
 
-DijkstraExpansion::~DijkstraExpansion() {
+SemanticDijkstra::~SemanticDijkstra() {
   delete[] buffer1_;
   delete[] buffer2_;
   delete[] buffer3_;
@@ -60,7 +68,7 @@ DijkstraExpansion::~DijkstraExpansion() {
 //
 // Set/Reset map size
 //
-void DijkstraExpansion::setSize(int xs, int ys) {
+void SemanticDijkstra::setSize(int xs, int ys) {
     Expander::setSize(xs, ys);
     if (pending_)
         delete[] pending_;
@@ -77,8 +85,10 @@ void DijkstraExpansion::setSize(int xs, int ys) {
 //   or until the Start cell is found (atStart = true)
 //
 
-bool DijkstraExpansion::calculatePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y,
-                                           int cycles, float* potential) {
+bool SemanticDijkstra::computePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y,
+                                           int cycles, float* potential, semantic_map::Object& object) {
+   
+    object = object;
     cells_visited_ = 0;
     // priority buffers
     threshold_ = lethal_cost_;
@@ -129,7 +139,8 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs, double start_x
     int startCell = toIndex(end_x, end_y);
 
     for (; cycle < cycles; cycle++) // go for this many cycles, unless interrupted
-            {
+      
+      {
         // 
         if (currentEnd_ == 0 && nextEnd_ == 0) // priority blocks empty
             return false;
@@ -149,7 +160,7 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs, double start_x
         pb = currentBuffer_;
         i = currentEnd_;
         while (i-- > 0)
-            updateCell(costs, potential, *pb++);
+            updateCell(costs, potential, *pb++, object);
 
         // swap priority blocks currentBuffer_ <=> nextBuffer_
         currentEnd_ = nextEnd_;
@@ -189,13 +200,17 @@ bool DijkstraExpansion::calculatePotentials(unsigned char* costs, double start_x
 
 #define INVSQRT2 0.707106781
 
-inline void DijkstraExpansion::updateCell(unsigned char* costs, float* potential, int n) {
+inline void SemanticDijkstra::updateCell(unsigned char* costs, float* potential, int n, semantic_map::Object& object) {
     cells_visited_++;
 
     // do planar wave update
     float c = getCost(costs, n);
-    if (c >= lethal_cost_)    // don't propagate into obstacles
-        return;
+
+        //if (c >= (lethal_cost_ + 3) )    // don't propagate into obstacles
+    //    return;
+    //else
+    //    c = 50.0;
+    
 
     float pot = p_calc_->calculatePotential(potential, c, n);
 
@@ -229,6 +244,139 @@ inline void DijkstraExpansion::updateCell(unsigned char* costs, float* potential
                 push_over(n+nx_);
         }
     }
+}
+
+bool SemanticDijkstra::isMovableObject(int n, semantic_map::Object& object)
+{ 
+    //ROS_INFO_STREAM(object);	
+    polygon_type poly;
+
+    unsigned int mx_, my_; // associated map coordinates of the costmap index under consideration.
+    unsigned int omx_, omy_; // associated map coordinates of the object bounding box descibed in world coordinates.
+    double owx_, owy_; // world coordinates of the object to be converted into world coordinates.
+    
+    costmap_->indexToCells(n, mx_, my_); 
+
+    for (l_ = 0; l_ < 4; l_++) 
+    {
+        owx_ = object.geometry.bounding_box.vertices[l_].x;
+        owy_ =  object.geometry.bounding_box.vertices[l_].y;
+
+        costmap_->worldToMap(owx_, owy_, omx_, omy_);
+
+        polyX[l_] = omx_;
+        polyY[l_] = omy_;
+
+        //ROS_INFO_STREAM(polyX[l_]);
+        //ROS_INFO_STREAM(polyY[l_]);
+	//ROS_INFO_STREAM("---------------------");
+	
+
+        poly.outer().push_back(point_type(omx_,omy_));
+
+        
+    }
+    
+    inside_ = false;
+    near_ = false;  
+    oddNodes_= false;
+    j_ = 3;
+      
+    for (i_=0; i_<4; i_++) 
+    {
+        if ( (polyY[i_] < my_ && polyY[j_] >= my_ || polyY[j_] < my_ && polyY[i_] >= my_)
+           &&  (polyX[i_] <= mx_ || polyX[j_] <= mx_) ) 
+        {
+            if (polyX[i_]+(my_-polyY[i_])/(polyY[j_]-polyY[i_])*(polyX[j_]-polyX[i_]) < mx_) 
+            {
+                oddNodes_ = !oddNodes_; 
+            }
+        }
+        
+        j_ = i_; 
+    }
+   
+    if (oddNodes_ == true)
+    {
+        inside_ = true;
+    }
+
+    ////////////////////////////////////////////////////////
+    point_type p(mx_,my_);
+
+    double distance = boost::geometry::distance(p, poly);
+
+    if (distance <= 60.0)
+        near_ = true;
+        //ROS_INFO_STREAM("INSIDE");
+
+    bool result = (inside_ || near_);
+    //ROS_INFO_STREAM(result);
+
+    return result;
+  
+}
+
+float SemanticDijkstra::getCost(unsigned char* costs, int n) {
+            float c = costs[n];
+            
+
+            //unsigned int mx, my; 
+            //costmap_->indexToCells(n, mx,  my);
+
+	    if (isMovableObject(n, object))
+            {
+              c = neutral_cost_;
+	      return c;	
+            }
+	
+	    
+            else if (c < lethal_cost_ - 1 || (unknown_ && c==255)) 
+            {
+                c = c * factor_ + neutral_cost_;
+                if (c >= lethal_cost_)
+                    c = lethal_cost_ - 1;
+                //return c;
+            }
+            			 
+            
+	    /*if (isMovableObject(n, object))
+              c = neutral_cost_;
+  
+            else if (c > 0.0)
+		c = lethal_cost_;*/
+
+	    else 
+            {
+		c = lethal_cost_;
+            }
+            
+
+            //return lethal_cost_;
+            return c;
+            
+            
+	   /* if (c > 1.0 && c < 255)
+            { 
+		c = lethal_cost_;
+                costmap_->setCost(mx, my, 254.0);
+            }   
+            else
+            {
+		c = 50.0;
+                costmap_->setCost(mx, my, 50.0);
+            } 
+            //if (c == lethal_cost_)
+		//ROS_INFO_STREAM(c);*/
+	
+	    /*if (isMovableObject(n, object))
+              c = 50.0;   
+
+	    else 
+             c = 253.0; 
+            
+            return c; */
+             
 }
 
 } //end namespace global_planner

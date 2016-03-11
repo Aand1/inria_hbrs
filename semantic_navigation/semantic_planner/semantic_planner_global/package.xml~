@@ -1,46 +1,51 @@
+<?xml version="1.0"?>
 <package>
   <name>semantic_planner_global</name>
-  <version>1.13.1</version>
-  <description>
-     A path planner library and node.
-  </description>
-  <maintainer email="davidvlu@gmail.com">David V. Lu!!</maintainer>
-  <maintainer email="mferguson@fetchrobotics.com">Michael Ferguson</maintainer>
-  <license>BSD</license>
+  <version>0.0.0</version>
+  <description>The semantic_planner_global package</description>
 
-  <author>David Lu!!</author>
-  <url>http://wiki.ros.org/global_planner</url>
+  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
+  <!-- Example:  -->
+  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+  <maintainer email="niranjan@todo.todo">niranjan</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>TODO</license>
+
+
+  <!-- Url tags are optional, but mutiple are allowed, one per tag -->
+  <!-- Optional attribute type can be: website, bugtracker, or repository -->
+  <!-- Example: -->
+  <!-- <url type="website">http://wiki.ros.org/semantic_planner_global</url> -->
+
+
+  <!-- Author tags are optional, mutiple are allowed, one per tag -->
+  <!-- Authors do not have to be maintianers, but could be -->
+  <!-- Example: -->
+  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+
 
   <buildtool_depend>catkin</buildtool_depend>
-
-  <build_depend>angles</build_depend>
-  <build_depend>costmap_2d</build_depend>
-  <build_depend>dynamic_reconfigure</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>nav_core</build_depend>
-  <build_depend>nav_msgs</build_depend>
-  <build_depend>sem_nav_msgs</build_depend>
-  <build_depend>navfn</build_depend>
-  <build_depend>pluginlib</build_depend>
   <build_depend>roscpp</build_depend>
-  <build_depend>tf</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
   <build_depend>global_planner</build_depend>
-  <build_depend>semantic_map</build_depend>
-  <build_depend>semantic_costmap</build_depend>
+  <build_depend>sem_nav_msgs</build_depend>
 
-  <run_depend>costmap_2d</run_depend>
-  <run_depend>dynamic_reconfigure</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>nav_core</run_depend>
-  <run_depend>nav_msgs</run_depend>
-  <run_depend>sem_nav_msgs</run_depend>
-  <run_depend>navfn</run_depend>
-  <run_depend>pluginlib</run_depend>
+
   <run_depend>roscpp</run_depend>
-  <run_depend>tf</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
   <run_depend>global_planner</run_depend>
-  <run_depend>semantic_map</run_depend>
-  <run_depend>semantic_costmap</run_depend>
- 
+  <run_depend>sem_nav_msgs</run_depend>
 
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
 </package>

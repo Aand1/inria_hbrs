@@ -48,6 +48,10 @@
 #include <std_msgs/Bool.h>
 #include <base_local_planner/trajectory_planner_ros.h>
 
+#include <sem_nav_msgs/LocalPlannerConstraints.h>
+#include <dynamic_reconfigure/DoubleParameter.h>
+#include <dynamic_reconfigure/Reconfigure.h>
+#include <dynamic_reconfigure/Config.h>
 
 
 namespace semantic_planner 
@@ -87,6 +91,8 @@ namespace semantic_planner
 
     bool sendVelocityCommands();
 
+    void setParam(sem_nav_msgs::LocalPlannerConstraints& constraints);
+
     void stop();
     void back();
 
@@ -113,6 +119,11 @@ namespace semantic_planner
         double planner_frequency_, controller_frequency_, inscribed_radius_, circumscribed_radius_;
         double controller_patience_;
         bool new_global_plan_;
+
+        dynamic_reconfigure::ReconfigureRequest srv_req;
+        dynamic_reconfigure::ReconfigureResponse srv_resp;
+        dynamic_reconfigure::DoubleParameter double_param;
+        dynamic_reconfigure::Config conf;
 
 			
 	};
