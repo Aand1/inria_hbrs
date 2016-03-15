@@ -52,6 +52,7 @@ namespace semantic_navigation_layers
 	StaticObjects::StaticObjects(costmap_2d::Costmap2D* parent, ros::NodeHandle& nh, tf::TransformListener *tf, std::string global_frame, bool rolling_window, std::string object_type) :
 		nh_(nh), tf_(tf), object_type_(object_type), size_updated(false)
 	{
+		
 		initialize(parent, global_frame, rolling_window);
 
 	}
@@ -77,6 +78,7 @@ namespace semantic_navigation_layers
 
 		semantic_map_query = new semantic_map::SemanticMap(nh_);
 		semantic_map_query->getObjectsStatic(object_list_, object_type_);
+		//ROS_INFO_STREAM(object_list_.size());
 		
 
 		enabled_ = true;
@@ -169,6 +171,7 @@ namespace semantic_navigation_layers
       			unsigned char value = new_map->data[index];
       	
    				costmap_[index] = interpretValue(value, j ,i);
+   				
       			
       			++index;
     		}
@@ -228,6 +231,7 @@ namespace semantic_navigation_layers
                 if (costmap_[it] != costmap_2d::NO_INFORMATION)
                 {
                     master_array[it] = costmap_[it];
+                    ROS_INFO_STREAM("LETHAL");
                 }
                 it++;
 
@@ -294,6 +298,8 @@ namespace semantic_navigation_layers
 
 	    }
 	    return inside_;
+
+	    return false;
 	}
 
 

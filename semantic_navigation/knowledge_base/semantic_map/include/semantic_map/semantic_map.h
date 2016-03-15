@@ -115,11 +115,16 @@ namespace semantic_map{
 
 		semantic_map::Object object;
 
-		YAML::Node* node_so, *node_do;
+		//YAML::Node* node_so, *node_do;
 
-		//std::ofstream semantic_map_file;
-		std::ofstream mapfile_so, mapfile_do;
-		std::string filename_so, filename_do;
+		//std::ofstream mapfile_so, mapfile_do;
+		//std::string filename_so, filename_do;
+
+
+		YAML::Node* node_so, *node_ho, *node_lo;
+
+		std::ofstream mapfile_so, mapfile_ho, mapfile_lo;
+		std::string filename_so, filename_ho, filename_lo;
 
 
 	};

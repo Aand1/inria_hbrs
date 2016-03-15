@@ -1,0 +1,528 @@
+- instance: shelf-02
+  semantics:
+    affordance: ""
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - -3.68
+        - -3.28
+        - 0
+      position-2:
+        - -2.35
+        - -2.67
+        - 0
+      position-3:
+        - -3.68
+        - -2.07
+        - 0
+      position-4:
+        - -5.01
+        - -2.67
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+  geometry:
+    bounding_box:
+      vertex-1:
+        - -4.7
+        - -2.98
+        - 0
+      vertex-2:
+        - -2.64
+        - -2.98
+        - 0
+      vertex-3:
+        - -2.65
+        - -2.37
+        - 0
+      vertex-4:
+        - -4.71
+        - -2.37
+        - 0
+    pose:
+      position:
+        x: -3.680060149781844
+        y: -2.679993274386217
+        z: 0.9300000200337026
+      orientation:
+        x: -1.546955052198659e-07
+        z: 2.944284545759645e-05
+        y: -2.793482733477333e-08
+        w: 0.9999999995665471
+- instance: shelf-06
+  geometry:
+    pose:
+      position:
+        x: 4.586712811246828e-13
+        y: 3.485000000002405
+        z: 0.3999999999755471
+      orientation:
+        x: -2.844701122515702e-12
+        y: 1.416786697557038e-12
+        z: -3.553408147007045e-14
+        w: 1
+    bounding_box:
+      vertex-1:
+        - -0.33
+        - 2.78
+        - 0
+      vertex-2:
+        - 0.33
+        - 2.78
+        - 0
+      vertex-3:
+        - 0.33
+        - 4.18
+        - 0
+      vertex-4:
+        - -0.33
+        - 4.18
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - 0
+        - 2.48
+        - 0
+      position-2:
+        - 0.63
+        - 3.48
+        - 0
+      position-3:
+        - 0
+        - 4.48
+        - 0
+      position-4:
+        - -0.63
+        - 3.48
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""
+- instance: shelf-03
+  geometry:
+    pose:
+      position:
+        x: -5.337009507400023
+        y: 0.4847524154962742
+        z: 0.6399949542106192
+      orientation:
+        x: -9.498539564084245e-08
+        y: 2.085752830873894e-06
+        z: -0.0001030615066480925
+        w: 0.9999999946869833
+    bounding_box:
+      vertex-1:
+        - -6.63
+        - 0.15
+        - 0
+      vertex-2:
+        - -4.03
+        - 0.18
+        - 0
+      vertex-3:
+        - -4.04
+        - 0.8100000000000001
+        - 0
+      vertex-4:
+        - -6.64
+        - 0.77
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - -5.33
+        - -0.12
+        - 0
+      position-2:
+        - -3.73
+        - 0.48
+        - 0
+      position-3:
+        - -5.33
+        - 1.09
+        - 0
+      position-4:
+        - -6.93
+        - 0.48
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""
+- instance: shelf-08
+  geometry:
+    pose:
+      position:
+        x: 4.759374100584372e-13
+        y: -1.064999999997595
+        z: 0.3999999999755471
+      orientation:
+        x: -2.844701120691996e-12
+        y: 1.416786698841802e-12
+        z: -3.285420311205881e-14
+        w: 1
+    bounding_box:
+      vertex-1:
+        - -0.33
+        - -1.76
+        - 0
+      vertex-2:
+        - 0.33
+        - -1.76
+        - 0
+      vertex-3:
+        - 0.33
+        - -0.36
+        - 0
+      vertex-4:
+        - -0.33
+        - -0.36
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - 0
+        - -2.06
+        - 0
+      position-2:
+        - 0.63
+        - -1.06
+        - 0
+      position-3:
+        - 0
+        - -0.06
+        - 0
+      position-4:
+        - -0.63
+        - -1.06
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""
+- instance: shelf-01
+  geometry:
+    pose:
+      position:
+        x: -1.819967779288141
+        y: -2.679922187179416
+        z: 0.929996149188104
+      orientation:
+        x: 6.541670083722694e-07
+        y: -1.913815140787174e-06
+        z: -4.392288530439013e-05
+        w: 0.9999999990333449
+    bounding_box:
+      vertex-1:
+        - -2.84
+        - -2.99
+        - 0
+      vertex-2:
+        - -0.78
+        - -2.97
+        - 0
+      vertex-3:
+        - -0.79
+        - -2.36
+        - 0
+      vertex-4:
+        - -2.85
+        - -2.38
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - -1.81
+        - -3.28
+        - 0
+      position-2:
+        - -0.48
+        - -2.67
+        - 0
+      position-3:
+        - -1.81
+        - -2.07
+        - 0
+      position-4:
+        - -3.14
+        - -2.67
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""
+- instance: shelf-05
+  geometry:
+    pose:
+      position:
+        x: 4.906380499216591e-13
+        y: 2.275000000002405
+        z: 0.3999999999755471
+      orientation:
+        x: -2.844701121735588e-12
+        y: 1.41678669622229e-12
+        z: -3.057251422833938e-14
+        w: 1
+    bounding_box:
+      vertex-1:
+        - -0.33
+        - 1.57
+        - 0
+      vertex-2:
+        - 0.33
+        - 1.57
+        - 0
+      vertex-3:
+        - 0.33
+        - 2.97
+        - 0
+      vertex-4:
+        - -0.33
+        - 2.97
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - 0
+        - 1.27
+        - 0
+      position-2:
+        - 0.63
+        - 2.27
+        - 0
+      position-3:
+        - 0
+        - 3.27
+        - 0
+      position-4:
+        - -0.63
+        - 2.27
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""
+- instance: shelf-04
+  geometry:
+    pose:
+      position:
+        x: 5.10713994714209e-13
+        z: 0.3999999999755471
+        y: 1.065000000002405
+      orientation:
+        x: -2.844701122616453e-12
+        y: 1.416786694876252e-12
+        z: -2.745652359283973e-14
+        w: 1
+    bounding_box:
+      vertex-1:
+        - -0.33
+        - 0.36
+        - 0
+      vertex-2:
+        - 0.33
+        - 0.36
+        - 0
+      vertex-3:
+        - 0.33
+        - 1.76
+        - 0
+      vertex-4:
+        - -0.33
+        - 1.76
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - 0
+        - 0.06
+        - 0
+      position-2:
+        - 0.63
+        - 1.06
+        - 0
+      position-3:
+        - 0
+        - 2.06
+        - 0
+      position-4:
+        - -0.63
+        - 1.06
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""
+- instance: shelf-07
+  geometry:
+    pose:
+      position:
+        x: 5.172702355155444e-13
+        z: 0.3999999999755471
+        y: -2.274999999997595
+      orientation:
+        x: -2.844701122223344e-12
+        y: 1.416786693429517e-12
+        z: -2.643892827239498e-14
+        w: 1
+    bounding_box:
+      vertex-1:
+        - -0.33
+        - -2.97
+        - 0
+      vertex-2:
+        - 0.33
+        - -2.97
+        - 0
+      vertex-3:
+        - 0.33
+        - -1.57
+        - 0
+      vertex-4:
+        - -0.33
+        - -1.57
+        - 0
+  semantics:
+    category: HeavyObject
+    sub_category: Shelf
+    semantic_positions:
+      position-1:
+        - 0
+        - -3.27
+        - 0
+      position-2:
+        - 0.63
+        - -2.27
+        - 0
+      position-3:
+        - 0
+        - -1.27
+        - 0
+      position-4:
+        - -0.63
+        - -2.27
+        - 0
+      position-5:
+        - 0
+        - 3.210019599008747e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208110529353216e-317
+      position-8:
+        - 3.208110529353216e-317
+        - 0
+        - 0
+    affordance: ""

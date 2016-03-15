@@ -93,6 +93,7 @@ namespace semantic_navigation_layers
 
 			  double scale = (double) value / lethal_threshold_;
 			  return scale * LETHAL_OBSTACLE;
+        
 		}
 
 

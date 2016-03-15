@@ -81,7 +81,7 @@ namespace semantic_navigation_layers
 
         bool rolling_window_ = layered_costmap_->isRolling();
 
-     	//so_ = new StaticObjects(local_costmap_, nh, tf_, global_frame_, rolling_window_, object_type); 
+     	so_ = new StaticObjects(local_costmap_, nh, tf_, global_frame_, rolling_window_, object_type); 
         do_ = new DynamicObjects(local_costmap_, nh, tf_, global_frame_, rolling_window_, object_type); 
         io_ = new InflateObjects(local_costmap_, nh, tf_, object_type);
      	//io_ = new InflateObjects(layered_costmap_, tf_, name_); 
@@ -114,8 +114,8 @@ namespace semantic_navigation_layers
             return;
         //matchSize();
 
-    	//so_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
-        do_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
+    	so_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
+        //do_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
     	io_->updateBounds(robot_x, robot_y, robot_yaw, min_x, min_y, max_x, max_y);
 
 
@@ -130,9 +130,10 @@ namespace semantic_navigation_layers
         if (!update_)
             return;
         //do_->updateCosts(heavy_objects_costmap_, min_i, min_j, max_i, max_j);
-        //so_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
 
-        do_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
+        so_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
+
+        //do_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
 
 
     	io_->updateCosts(*local_costmap_, min_i, min_j, max_i, max_j);
@@ -166,11 +167,11 @@ namespace semantic_navigation_layers
   	{
 	    costmap_2d::Costmap2D* master = layered_costmap_->getCostmap();
 
-	    local_costmap_->resizeMap(master->getSizeInCellsX(), master->getSizeInCellsY(), master->getResolution(),
-	    master->getOriginX(), master->getOriginY());
-
+	    //local_costmap_->resizeMap(master->getSizeInCellsX(), master->getSizeInCellsY(), master->getResolution(),
+	    //master->getOriginX(), master->getOriginY());
+        local_costmap_->resizeMap(330.0, 160.0, 0.05, -8.375, -3.325);
         //so_->matchSize();
-        do_->matchSize();
+        //do_->matchSize();
         io_->matchSize();
 
   	}

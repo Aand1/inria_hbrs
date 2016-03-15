@@ -138,17 +138,19 @@ void DummyPerception::computeBbAndSp(const Vector2& center, const double w, cons
     ROS_INFO_STREAM(h);
 
     ROS_INFO_STREAM("========");*/
-	Vector2 X( cos(angle*PI/180.0), sin(angle*PI/180.0));
-	Vector2 Y( -sin(angle*PI/180.0), cos(angle*PI/180.0));
+	//Vector2 X( cos(angle*PI/180.0), sin(angle*PI/180.0));
+	//Vector2 Y( -sin(angle*PI/180.0), cos(angle*PI/180.0));
 
-	//Vector2 X( cos(angle), sin(angle));
-	//Vector2 Y( -sin(angle), cos(angle));
+	Vector2 X( cos(angle), sin(angle));
+	Vector2 Y( -sin(angle), cos(angle));
+	ROS_INFO_STREAM(cos(angle));
+	ROS_INFO_STREAM(sin(angle));
 
 	// Adding tolerance for bounding box
-	double w_ = w + 0.3;
-	double h_ = h + 0.3;
+	//double w_ = w + 0.3;
+	//double h_ = h + 0.3;
 	
-	if ( angle < 45 || angle > 135)
+/*	if ( angle < 45 || angle > 135)
 	{
 		X *= h_ / 2;
     	Y *= w_ / 2;
@@ -158,17 +160,17 @@ void DummyPerception::computeBbAndSp(const Vector2& center, const double w, cons
 	{
 		X *= w_ / 2;
     	Y *= h_ / 2;
-	}
+	}*/
 
 
-	//X *= h / 2;
-    //Y *= w / 2;
+	X *= w / 2;
+    Y *= h / 2;
 
-/*    ROS_INFO_STREAM(X.x);
+    ROS_INFO_STREAM(X.x);
     ROS_INFO_STREAM(X.y);
     ROS_INFO_STREAM("-----");
     ROS_INFO_STREAM(Y.x);
-    ROS_INFO_STREAM(Y.y);*/
+    ROS_INFO_STREAM(Y.y);
 
    
     //ROS_INFO_STREAM("Angle1");
@@ -267,7 +269,7 @@ void DummyPerception::computeValues()
 		object = empty;
 		std::string instance = objects_state_temp_.model_name[i];
 
-	/*	if (instance.compare(0, 4,"wall") == 0)
+		if (instance.compare(0, 4,"wall") == 0)
 		{
 			
 			object.instance.name = objects_state_temp_.model_name[i];
@@ -282,20 +284,56 @@ void DummyPerception::computeValues()
 			object.semantics.category = "StructuralObject";
 			object.semantics.sub_category = "Wall";
 
-			if (objects_state_temp_.size[i].x > objects_state_temp_.size[i].y)
+			computeBbAndSp(center, objects_state_temp_.size[i].x, objects_state_temp_.size[i].y+0.2, angle, object);
+
+		/*	if (objects_state_temp_.size[i].x > objects_state_temp_.size[i].y)
 			{
-				computeBbAndSp(center, 0.3, 3.85, 0, object);
+				//computeBbAndSp(center, 0.3, 3.85, 0, object);
+				computeBbAndSp(center, objects_state_temp_.size[i].x, objects_state_temp_.size[i].y, angle, object);
 			}
-			else if (objects_state_temp_.size[i].x < objects_state_temp_.size[i].y)
+			else
 			{
-				computeBbAndSp(center, 3.85, 0.3, 0, object);
-			}
+				//computeBbAndSp(center, 3.85, 0.3, 0, object);
+				computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
+			}*/
 			//computeBbAndSp(center, objects_state_temp_.size[i].x, objects_state_temp_.size[i].y, angle, object);
 
 			object_list_.push_back(object); 	
-		}*/
+		}
 
-		if (instance.compare(0, 5,"couch") == 0)
+		if (instance.compare(0, 5,"shelf") == 0)
+		{
+			
+			object.instance.name = objects_state_temp_.model_name[i];
+			object.geometry.pose = objects_state_temp_.pose[i];
+
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+    		
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Shelf";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.2, objects_state_temp_.size[i].y+0.2, angle, object);
+
+		/*	if (objects_state_temp_.size[i].x > objects_state_temp_.size[i].y)
+			{
+				//computeBbAndSp(center, 0.3, 3.85, 0, object);
+				computeBbAndSp(center, objects_state_temp_.size[i].x, objects_state_temp_.size[i].y, angle, object);
+			}
+			else
+			{
+				//computeBbAndSp(center, 3.85, 0.3, 0, object);
+				computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
+			}*/
+			//computeBbAndSp(center, objects_state_temp_.size[i].x, objects_state_temp_.size[i].y, angle, object);
+
+			object_list_.push_back(object); 	
+		}
+
+		/*if (instance.compare(0, 5,"couch") == 0)
 		{
 			
 			object.instance.name = objects_state_temp_.model_name[i];
@@ -355,7 +393,7 @@ void DummyPerception::computeValues()
 			computeBbAndSp(center, objects_state_temp_.size[i].y, objects_state_temp_.size[i].x, angle, object);
 
 			object_list_.push_back(object); 
-		}
+		}*/
 
 		
 		/*else if (instance.compare(0, 2,"tv") == 0)
@@ -448,7 +486,7 @@ void DummyPerception::computeValues()
 			object_list_.push_back(object); 	
 		}*/
 
-		if (instance.compare(0, 14,"corrogated_box") == 0)
+	/*	if (instance.compare(0, 14,"corrogated_box") == 0)
 		{
 			object.instance.name = objects_state_temp_.model_name[i];
 
@@ -523,7 +561,7 @@ void DummyPerception::computeValues()
 
 
 			object_list_.push_back(object); 	
-		}
+		}*/
 
 	/*	if (instance.compare(0, 4,"wall") == 0)
 		{

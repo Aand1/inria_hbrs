@@ -70,8 +70,12 @@ SemanticMap::SemanticMap(const ros::NodeHandle &nh)
   : nh_(nh)
 {
 
-    filename_so = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/static_objects.yaml";
-    filename_do = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/dynamic_objects.yaml";
+    //filename_so = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/static_objects.yaml";
+    //filename_do = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/dynamic_objects.yaml";
+
+    filename_so = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/structural_objects.yaml";
+    filename_ho = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/heavy_objects.yaml";
+    filename_lo = "/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/light_objects.yaml";
 
     
     access_ = new mutex_t();   
@@ -156,7 +160,7 @@ void SemanticMap::updateMap(std::list<Object>& object_list)
     
     list<Object>::iterator obs_it;
 
-    node_so = new YAML::Node[object_list.size()];
+  /*  node_so = new YAML::Node[object_list.size()];
     node_do = new YAML::Node[object_list.size()];
 
   	for (obs_it = object_list.begin(); obs_it != object_list.end(); ++obs_it)
@@ -186,64 +190,52 @@ void SemanticMap::updateMap(std::list<Object>& object_list)
         mapfile_do.open (filename_do.c_str(), std::fstream::out | std::fstream::trunc);
         mapfile_do << *node_do;
         mapfile_do.close();
-    }
-    
+    }*/
 
-    //int begin = object_list.begin();
-    //int end = object_list.size();
-    //mapfile.open (filename.c_str(), std::ios::trunc);
-    //ROS_INFO_STREAM(begin);
-    //ROS_INFO_STREAM(end);
-    //node.push_back(object);
-    //mapfile << node;
+    node_so = new YAML::Node[object_list.size()];
+    node_ho = new YAML::Node[object_list.size()];
+    node_lo = new YAML::Node[object_list.size()];
 
-    //mapfile.close();
-    
-
-
-/*    std::string instance_name;
-    semantic_map::Object object;
-    gazebo_msgs::ModelState model_state;
-    std::ofstream fout("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/semantic_map/data/semantic_map.yaml");
-
-    for (int i = 0; i < modelstates->name.size(); i++) 
+    for (obs_it = object_list.begin(); obs_it != object_list.end(); ++obs_it)
     {
-    	//model_state.model_name = modelstates->name[i];
-  		//object.instance = model_state.model_name;
-  		//object.geometry.pose = modelstates.pose[i];
-  		//object.instance.name = modelstates->name[i];
-  		//ROS_INFO_STREAM(modelstates.name[i]);
-  		//object.geometry.pose = modelstates.pose[i];
-  		//object.semantics.category = "Object";
-  		//object.semantics.sub_category = "Sub-object";
+      semantic_map::Object& object = *obs_it;
 
-        instance_name = modelstates->name[i];
+      if (  object.semantics.category.compare("StructuralObject") == 0 )
+      {     
+          node_so->push_back(object);
+      }
 
-        for (int j = 0; j < node.size(); j++)
-        {
-        	std::string instance_node = node[j]["instance"].as<std::string>();
+      else if ( object.semantics.category.compare("HeavyObject") == 0 )
+      {
+          node_ho->push_back(object);
+      }
 
-        	if ( instance_name.compare(instance_node) != 0)
-        	{
-        		object.instance.name = modelstates->name[i];
-  				object.geometry.pose = modelstates->pose[i];
-  				node.push_back(object);
-  				fout << node;
-  				ROS_INFO_STREAM("FIlling map");
-        	}
-        	else
-        	{
-        		ROS_INFO_STREAM("Instance exists");
-        	}
-        }
+      else if ( object.semantics.category.compare("LightObject") == 0 )
+      {
+          node_lo->push_back(object);
+      }
+    }
 
-  		
+    if ( node_so->size() != 0 )
+    {
+        mapfile_so.open (filename_so.c_str(), std::fstream::out | std::fstream::trunc);
+        mapfile_so << *node_so;
+        mapfile_so.close();
+    }
 
-	}*/
+    if ( node_ho->size() != 0 )
+    {
+        mapfile_ho.open (filename_ho.c_str(), std::fstream::out | std::fstream::trunc);
+        mapfile_ho << *node_ho;
+        mapfile_ho.close();
+    }
 
-    
-    
-
+    if ( node_lo->size() != 0 )
+    {
+        mapfile_lo.open (filename_lo.c_str(), std::fstream::out | std::fstream::trunc);
+        mapfile_lo << *node_lo;
+        mapfile_lo.close();
+    }
 }
 
 void SemanticMap::deleteMap()
@@ -447,7 +439,7 @@ void SemanticMap::getObjectsStatic(std::list<Object>& objects, std::string objec
 
     objects.clear();
 
-    semantic_map::Object object_temp;
+  /*  semantic_map::Object object_temp;
 
     YAML::Node node = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/static_objects.yaml");
     //ROS_INFO_STREAM(node1.size());
@@ -464,7 +456,40 @@ void SemanticMap::getObjectsStatic(std::list<Object>& objects, std::string objec
             objects.push_back(object_temp);  
 
         }
+    } */
+    semantic_map::Object object_temp;
+    if (  object_type.compare("StructuralObject") == 0 )
+    {    
+        YAML::Node node_so = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/structural_objects.yaml"); 
+
+        for (int count = 0; count < node_so.size(); count++)
+        {
+            object_temp = node_so[count].as<Object>();
+            objects.push_back(object_temp);
+        }
+        
     } 
+
+    if (  object_type.compare("HeavyObject") == 0 )
+    { 
+        YAML::Node node_ho = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/heavy_objects.yaml");    
+        for (int count = 0; count < node_ho.size(); count++)
+        {
+            object_temp = node_ho[count].as<Object>();
+            objects.push_back(object_temp);
+        }
+    } 
+
+    else if (  object_type.compare("LightObject") == 0 )
+    {  
+        YAML::Node node_lo = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/light_objects.yaml"); 
+        for (int count = 0; count < node_lo.size(); count++)
+        {
+            object_temp = node_lo[count].as<Object>();
+            objects.push_back(object_temp);
+        }
+        
+    }    
 
 }
 
@@ -501,6 +526,9 @@ void SemanticMap::getAllObjects(std::list<Object>& objects)
         objects.push_back(object_temp); 
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
 
 
 

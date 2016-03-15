@@ -1,6 +1,7 @@
 global_costmap:
    global_frame: /map
-   robot_base_frame: /base_link
+   robot_base_frame: base_footprint 
+   #/base_link
    map_type: costmap
    update_frequency: 20.0
    publish_frequency: 10.0
@@ -9,7 +10,7 @@ global_costmap:
    plugins:
         - {name: structural_objects, type: "semantic_navigation_layers::StructuralObjectsLayer"}
         - {name: heavy_objects, type: "semantic_navigation_layers::HeavyObjectsLayer"}
-        - {name: light_objects, type: "semantic_navigation_layers::LightObjectsLayer"}  
+#        - {name: light_objects, type: "semantic_navigation_layers::LightObjectsLayer"}  
 
 
 
