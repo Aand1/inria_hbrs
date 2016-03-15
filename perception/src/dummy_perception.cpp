@@ -316,7 +316,7 @@ void DummyPerception::computeValues()
 			object.semantics.category = "HeavyObject";
 			object.semantics.sub_category = "Shelf";
 
-			computeBbAndSp(center, objects_state_temp_.size[i].x+0.2, objects_state_temp_.size[i].y+0.2, angle, object);
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.4, objects_state_temp_.size[i].y+0.3, angle, object);
 
 		/*	if (objects_state_temp_.size[i].x > objects_state_temp_.size[i].y)
 			{
@@ -332,6 +332,121 @@ void DummyPerception::computeValues()
 
 			object_list_.push_back(object); 	
 		}
+
+		if (instance.compare(0, 5,"table") == 0)
+		{
+			
+			object.instance.name = objects_state_temp_.model_name[i];
+			object.geometry.pose = objects_state_temp_.pose[i];
+
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+    		
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Table";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.5, objects_state_temp_.size[i].y+0.15, angle, object);
+
+		
+
+			object_list_.push_back(object); 	
+		}
+
+		if (instance.compare(0, 5,"couch") == 0)
+		{
+			
+			object.instance.name = objects_state_temp_.model_name[i];
+			object.geometry.pose = objects_state_temp_.pose[i];
+
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+    		
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Couch";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.25, objects_state_temp_.size[i].y+0.25, angle, object);
+
+		
+
+			object_list_.push_back(object); 	
+		}
+
+		if (instance.compare(0, 5,"chair") == 0)
+		{
+			
+			object.instance.name = objects_state_temp_.model_name[i];
+			object.geometry.pose = objects_state_temp_.pose[i];
+
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+    		
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Chair";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.25, objects_state_temp_.size[i].y+0.25, angle, object);
+
+		
+
+			object_list_.push_back(object); 	
+		}
+
+		if (instance.compare(0, 7,"counter") == 0)
+		{
+			
+			object.instance.name = objects_state_temp_.model_name[i];
+			object.geometry.pose = objects_state_temp_.pose[i];
+
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+    		
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Counter";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.25, objects_state_temp_.size[i].y+0.25, angle, object);
+
+		
+
+			object_list_.push_back(object); 	
+		}
+
+		if (instance.compare(0, 6,"fridge") == 0)
+		{
+			
+			object.instance.name = objects_state_temp_.model_name[i];
+			object.geometry.pose = objects_state_temp_.pose[i];
+
+			
+    		center.x = objects_state_temp_.pose[i].position.x;
+    		center.y = objects_state_temp_.pose[i].position.y;
+    		double angle = (acos (objects_state_temp_.pose[i].orientation.w) * 2) * (180.0 / PI);
+    		
+
+			object.semantics.category = "HeavyObject";
+			object.semantics.sub_category = "Fridge";
+
+			computeBbAndSp(center, objects_state_temp_.size[i].x+0.25, objects_state_temp_.size[i].y+0.25, angle, object);
+
+		
+
+			object_list_.push_back(object); 	
+		}
+
+
+
+
+
 
 		/*if (instance.compare(0, 5,"couch") == 0)
 		{

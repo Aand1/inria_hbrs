@@ -169,7 +169,10 @@ namespace semantic_navigation_layers
 
 	    //local_costmap_->resizeMap(master->getSizeInCellsX(), master->getSizeInCellsY(), master->getResolution(),
 	    //master->getOriginX(), master->getOriginY());
-        local_costmap_->resizeMap(330.0, 160.0, 0.05, -8.375, -3.325);
+        //local_costmap_->resizeMap(330.0, 160.0, 0.05, -8.375, -3.325);
+        local_costmap_->resizeMap(360.0, 180.0, 0.05, -9.3, -3.78);
+
+
         //so_->matchSize();
         //do_->matchSize();
         io_->matchSize();

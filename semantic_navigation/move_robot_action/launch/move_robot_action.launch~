@@ -10,7 +10,7 @@
         
         <!--<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen" clear_params="true" > -->
        
-    	<!--	<rosparam file="$(find move_robot_action)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    		<rosparam file="$(find move_robot_action)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find move_robot_action)/config/global_costmap_params.yaml" command="load" />
 
 		<rosparam file="$(find move_robot_action)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
@@ -22,21 +22,9 @@
 		<remap from="/move_robot_action/global_costmap/costmap" to="/global_costmap/costmap" />
                 <remap from="/move_robot_action/global_costmap/costmap_updates" to="/global_costmap/costmap_updates" />
 
-		<remap from="/global_costmap/structural_objects" to="/structural_objects" /> -->
+		<remap from="/global_costmap/structural_objects" to="/structural_objects" /> 
 
-        <!-- local planner parameters (Dynamic Window Approach) -->
-        <rosparam file="$(find mdr_2dnav)/ros/config/dwa/dwa_local_planner_params.yaml" command="load" ns="DWAPlannerROS" />
         
-
- 	<!-- global costmap parameters -->
-        <rosparam file="$(find mdr_2dnav)/ros/config/common/robot_footprint.yaml" command="load" ns="global_costmap"/>
-        <rosparam file="$(find mdr_2dnav)/ros/config/dwa/costmap_common_params.yaml" command="load" ns="global_costmap"/>
-        <rosparam file="$(find mdr_2dnav)/ros/config/dwa/global_costmap_params.yaml" command="load" />
-        
-        <!-- local costmap parameters -->
-        <rosparam file="$(find mdr_2dnav)/ros/config/common/robot_footprint.yaml" command="load" ns="local_costmap"/>
-        <rosparam file="$(find mdr_2dnav)/ros/config/dwa/costmap_common_params.yaml" command="load" ns="local_costmap" />
-        <rosparam file="$(find mdr_2dnav)/ros/config/dwa/local_costmap_params.yaml" command="load" />    
 
 		
 		

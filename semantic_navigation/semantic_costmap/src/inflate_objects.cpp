@@ -83,7 +83,8 @@ namespace semantic_navigation_layers
 
     	cell_inflation_radius_ = cellDistance(inflation_radius_);
 
-    	semantic_map_query = new semantic_map::SemanticMap(nh_);	
+    	semantic_map_query = new semantic_map::SemanticMap(nh_);
+    	semantic_map_query->getObjectsStatic(object_list, object_type_);	
 
 	}
 
@@ -99,7 +100,7 @@ namespace semantic_navigation_layers
 			semantic_map_query->getObjectsDynamic(object_list, object_type_);
 		}*/
 
-	    semantic_map_query->getObjectsStatic(object_list, object_type_);
+	    //semantic_map_query->getObjectsStatic(object_list, object_type_);
 		
 	}
 

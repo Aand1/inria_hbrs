@@ -1,7 +1,7 @@
 global_costmap:
    global_frame: /map
-   robot_base_frame: base_footprint 
-   #/base_link
+   robot_base_frame: /base_link
+   #base_footprint
    map_type: costmap
    update_frequency: 20.0
    publish_frequency: 10.0

@@ -1,15 +1,81 @@
+- instance: wall_north
+  semantics:
+    category: StructuralObject
+    sub_category: Wall
+    semantic_positions:
+      position-1:
+        - -0.25
+        - 2.43
+        - 0
+      position-2:
+        - 0.73
+        - 4.24
+        - 0
+      position-3:
+        - -0.25
+        - 4.53
+        - 0
+      position-4:
+        - -0.73
+        - 4.24
+        - 0
+      position-5:
+        - 0
+        - 3.21002750405908e-317
+        - 9.728152566614144e-321
+      position-6:
+        - 3.182814368286144e-317
+        - 6.953348550111456e-310
+        - 0
+      position-7:
+        - 0
+        - 0
+        - 3.208157959655217e-317
+      position-8:
+        - 3.208157959655217e-317
+        - 0
+        - 0
+    affordance: ""
+  geometry:
+    pose:
+      position:
+        x: -0.255
+        y: 4.244
+        z: 0.55
+      orientation:
+        z: 0
+        w: 1
+        x: 0
+        y: 0
+    bounding_box:
+      vertex-3:
+        - 7.49
+        - 4.49
+        - 0
+      vertex-2:
+        - 7.49
+        - 3.99
+        - 0
+      vertex-4:
+        - -8
+        - 4.49
+        - 0
+      vertex-1:
+        - -8
+        - 3.99
+        - 0
 - instance: wall_south
   geometry:
     pose:
+      position:
+        x: -0.255
+        y: -3.04
+        z: 0.55
       orientation:
         x: 0
         y: 0
         z: 0
         w: 1
-      position:
-        z: 0.55
-        y: -3.04
-        x: -0.255
     bounding_box:
       vertex-1:
         - -8
@@ -33,23 +99,23 @@
     semantic_positions:
       position-1:
         - -0.25
-        - -3.28
+        - 2.43
         - 0
       position-2:
-        - -2.35
+        - 0.73
         - -3.03
         - 0
       position-3:
         - -0.25
-        - -2.07
+        - 4.53
         - 0
       position-4:
-        - -5.01
+        - -0.73
         - -3.03
         - 0
       position-5:
         - 0
-        - 3.210019599008747e-317
+        - 3.21002750405908e-317
         - 9.728152566614144e-321
       position-6:
         - 3.182814368286144e-317
@@ -58,78 +124,12 @@
       position-7:
         - 0
         - 0
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
       position-8:
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
         - 0
         - 0
     affordance: ""
-- semantics:
-    category: StructuralObject
-    sub_category: Wall
-    semantic_positions:
-      position-1:
-        - 7.55
-        - 2.48
-        - 0
-      position-2:
-        - 0.63
-        - 0.58
-        - 0
-      position-3:
-        - 7.55
-        - 4.48
-        - 0
-      position-4:
-        - -0.63
-        - 0.58
-        - 0
-      position-5:
-        - 0
-        - 3.210019599008747e-317
-        - 9.728152566614144e-321
-      position-6:
-        - 3.182814368286144e-317
-        - 6.953348550111456e-310
-        - 0
-      position-7:
-        - 0
-        - 0
-        - 3.208110529353216e-317
-      position-8:
-        - 3.208110529353216e-317
-        - 0
-        - 0
-    affordance: ""
-  instance: wall_east
-  geometry:
-    pose:
-      position:
-        x: 7.5508
-        y: 0.59
-        z: 0.55
-      orientation:
-        x: 0
-        y: 0
-        z: 0
-        w: 1
-    bounding_box:
-      vertex-1:
-        - 7.4
-        - -2.98
-        - 0
-      vertex-2:
-        - 7.7
-        - -2.98
-        - 0
-      vertex-3:
-        - 7.7
-        - 4.16
-        - 0
-      vertex-4:
-        - 7.4
-        - 4.16
-        - 0
 - instance: wall_west
   geometry:
     pose:
@@ -165,23 +165,23 @@
     semantic_positions:
       position-1:
         - -8.050000000000001
-        - -0.12
+        - 2.43
         - 0
       position-2:
-        - -3.73
+        - 0.73
         - 0.58
         - 0
       position-3:
         - -8.050000000000001
-        - 1.09
+        - 4.53
         - 0
       position-4:
-        - -6.93
+        - -0.73
         - 0.58
         - 0
       position-5:
         - 0
-        - 3.210019599008747e-317
+        - 3.21002750405908e-317
         - 9.728152566614144e-321
       position-6:
         - 3.182814368286144e-317
@@ -190,18 +190,17 @@
       position-7:
         - 0
         - 0
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
       position-8:
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
         - 0
         - 0
     affordance: ""
-- instance: wall_north
-  geometry:
+- geometry:
     pose:
       position:
-        x: -0.255
-        y: 4.244
+        x: 7.5508
+        y: 0.59
         z: 0.55
       orientation:
         x: 0
@@ -210,44 +209,44 @@
         w: 1
     bounding_box:
       vertex-1:
-        - -8
-        - 3.99
+        - 7.4
+        - -2.98
         - 0
       vertex-2:
-        - 7.49
-        - 3.99
+        - 7.7
+        - -2.98
         - 0
       vertex-3:
-        - 7.49
-        - 4.49
+        - 7.7
+        - 4.16
         - 0
       vertex-4:
-        - -8
-        - 4.49
+        - 7.4
+        - 4.16
         - 0
+  instance: wall_east
   semantics:
-    category: StructuralObject
     sub_category: Wall
     semantic_positions:
       position-1:
-        - -0.25
-        - -2.06
+        - 7.55
+        - -0.89
         - 0
       position-2:
-        - 0.63
-        - 4.24
+        - -4.56
+        - 0.58
         - 0
       position-3:
-        - -0.25
-        - -0.06
+        - 7.55
+        - 0.58
         - 0
       position-4:
-        - -0.63
-        - 4.24
+        - -7.33
+        - 0.58
         - 0
       position-5:
         - 0
-        - 3.210019599008747e-317
+        - 3.21002750405908e-317
         - 9.728152566614144e-321
       position-6:
         - 3.182814368286144e-317
@@ -256,19 +255,20 @@
       position-7:
         - 0
         - 0
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
       position-8:
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
         - 0
         - 0
+    category: StructuralObject
     affordance: ""
 - instance: wall_west_divider
   geometry:
     pose:
       position:
         x: -5.84
-        z: 0.55
         y: 0.218
+        z: 0.55
       orientation:
         x: 0
         y: 0
@@ -297,23 +297,23 @@
     semantic_positions:
       position-1:
         - -5.84
-        - 1.27
+        - -1.9
         - 0
       position-2:
-        - 0.63
+        - -0.8100000000000001
         - 0.21
         - 0
       position-3:
         - -5.84
-        - 3.27
+        - -0.68
         - 0
       position-4:
-        - -0.63
+        - -2.38
         - 0.21
         - 0
       position-5:
         - 0
-        - 3.210019599008747e-317
+        - 3.21002750405908e-317
         - 9.728152566614144e-321
       position-6:
         - 3.182814368286144e-317
@@ -322,9 +322,9 @@
       position-7:
         - 0
         - 0
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
       position-8:
-        - 3.208110529353216e-317
+        - 3.208157959655217e-317
         - 0
         - 0
     affordance: ""
