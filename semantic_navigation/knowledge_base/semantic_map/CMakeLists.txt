@@ -1,16 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(semantic_map)
 
-#find_package(PkgConfig)
-#pkg_search_module(yaml-cpp REQUIRED yaml-cpp)
-
-#find_packge(yaml-cpp REQUIRED)
-#if(NOT ${yaml-cpp_VERSION} VERSION_LESS "0.5")
-#add_definitions(-DHAVE_NEW_YAMLCPP)
-#endif()
 find_package(gazebo REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread)
-
 
 find_package(catkin REQUIRED
   COMPONENTS 
@@ -22,7 +14,6 @@ find_package(catkin REQUIRED
     gazebo_msgs
     yocs_msgs
     message_generation
-    #yaml-cpp
 )
 
 
