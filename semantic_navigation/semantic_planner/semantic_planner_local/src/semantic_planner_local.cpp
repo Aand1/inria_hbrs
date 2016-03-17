@@ -63,7 +63,8 @@ SemanticPlannerLocal::SemanticPlannerLocal(std::string name, tf::TransformListen
 
       controller_plan_ = new std::vector<geometry_msgs::PoseStamped>();
 
-      tp.initialize("TrajectoryPlannerROS", tf_, local_costmap_);
+      //tp.initialize("TrajectoryPlannerROS", tf_, local_costmap_);
+	tp.initialize("DWAPlannerROS", tf_, local_costmap_);
 
       //for comanding the base
       vel_pub_ = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);

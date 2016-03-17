@@ -8,6 +8,7 @@ find_package(catkin REQUIRED
             tf
             costmap_2d
 	    base_local_planner
+	    dwa_local_planner
 	    nav_core
 	    message_generation
       dynamic_reconfigure
@@ -23,6 +24,7 @@ catkin_package(
         tf
         costmap_2d
         base_local_planner
+	dwa_local_planner
 	std_msgs
 )
 
