@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-
- <!-- send corrogated_box_two urdf to param server -->
-    <param name="corrogated_box" command="$(find xacro)/xacro.py $(find gazebo_objects)/common/objects/corrogated_box.urdf" /> 
-
-    <!-- spawn uploaded stool model -->
-    <node name="corrogated_box" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box -model corrogated_box_one -x 1.5 -y 2.0 -z 0.0" respawn="false" output="screen" /> 
-</launch>

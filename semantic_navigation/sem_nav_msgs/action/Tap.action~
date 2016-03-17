@@ -1,6 +1,0 @@
-# An action for tapping an object
-
-semantic_map/ObjectInstance object_instance 
-geometry_msgs/PoseStamped reach_goal
----
----
