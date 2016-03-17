@@ -19,6 +19,14 @@ if(NOT ${yaml-cpp_VERSION} VERSION_LESS "0.5")
 add_definitions(-DHAVE_NEW_YAMLCPP)
 endif()
 
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${yaml-cpp_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
+)
+
 
 
 add_message_files(
@@ -39,19 +47,18 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES perception
-  CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs gazebo_msgs message_runtime 
-  DEPENDS yaml-cpp
+  CATKIN_DEPENDS
+    roscpp
+    rospy
+    std_msgs
+    geometry_msgs
+    gazebo_msgs
+    message_runtime
+    semantic_map
 )
 
 
 
-include_directories(include)
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-  ${yaml-cpp_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-  ${GAZEBO_INCLUDE_DIRS}
-)
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
@@ -61,7 +68,6 @@ add_library(dummy_perception
 )
 target_link_libraries(dummy_perception
   ${catkin_LIBRARIES}
-  ${roscpp_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${GAZEBO_LIBRARIES}
   semantic_map
@@ -71,15 +77,15 @@ add_library(gazebo_ros_objects_state_publisher plugins/gazebo_ros_objects_state_
 target_link_libraries(gazebo_ros_objects_state_publisher ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 add_executable(dummy_perception_node src/dummy_perception_node.cpp)
-target_link_libraries(dummy_perception_node ${catkin_LIBRARIES} dummy_perception)
+target_link_libraries(dummy_perception_node ${catkin_LIBRARIES} dummy_perception semantic_map)
 
-add_executable(yaml_test src/test_1.cpp)
-target_link_libraries(yaml_test ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES})
+#add_executable(yaml_test src/test_1.cpp)
+#target_link_libraries(yaml_test ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES})
 
-add_executable(read_yaml src/read_yaml.cpp)
-target_link_libraries(read_yaml ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES})
-add_executable(write_yaml src/write_yaml.cpp)
-target_link_libraries(write_yaml ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES} semantic_map)
+#add_executable(read_yaml src/read_yaml.cpp)
+#target_link_libraries(read_yaml ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES})
+#add_executable(write_yaml src/write_yaml.cpp)
+#target_link_libraries(write_yaml ${catkin_LIBRARIES} ${yaml-cpp_LIBRARIES} semantic_map)
 
 
 ##add_library(hello_world SHARED plugins/hello_world.cc)
