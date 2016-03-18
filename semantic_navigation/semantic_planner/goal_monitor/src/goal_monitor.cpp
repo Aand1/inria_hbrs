@@ -143,13 +143,13 @@ bool GoalMonitor::goalMonitor(const geometry_msgs::PoseStamped& goal, double tol
 	{
 		ROS_INFO_STREAM("Goal reached");
 
-	/*	double angle = getGoalOrientationAngleDifference(global_goal, goal_th);
+		double angle = getGoalOrientationAngleDifference(global_goal, goal_th);
 
-		if (fabs(angle) <= 2.0) 
+		if (fabs(angle) <= 0.1) 
 		{
 			return true;
 		
-		}*/
+		}
 
 		return true;
 
