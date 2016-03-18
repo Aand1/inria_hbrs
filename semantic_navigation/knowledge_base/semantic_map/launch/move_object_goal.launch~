@@ -1,9 +1,0 @@
-<launch>
-
-
-    <node pkg="semantic_knowledgebase" type="move_object_server.py" name="move_object_server_node" output="screen">
-         <param name="filename" type="string" value="$(find semantic_knowledgebase)/data/goal.yaml" />
-    </node> 
-
-
-</launch>

@@ -1,9 +1,0 @@
-<launch>
-
-
-    <node pkg="semantic_map" type="semantic_map_query_response.py" name="regions" output="screen">
-         <param name="filename" type="string" value="$(find semantic_map)/data/regions.yaml" />
-    </node> 
-
-
-</launch>

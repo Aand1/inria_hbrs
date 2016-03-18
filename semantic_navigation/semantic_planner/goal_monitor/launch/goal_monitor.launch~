@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-        <node pkg="goal_monitor" type="goal_monitor_node" respawn="false" name="goal_monitor" output="screen" clear_params="true">
-
-               
-  	</node>
-
-</launch>
-
