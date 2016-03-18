@@ -30,6 +30,8 @@ int main(int argc, char** argv)
     goal.input.geometric_goal.pose.position.y = 0.7;
     goal.input.geometric_goal.pose.orientation.w = 1.0;
 
+    goal.object_instance.name = "box";
+
     //goal.input.purpose.data = "emergency";
     //////////////////////////////////////////////////
     ac.sendGoal(goal);
