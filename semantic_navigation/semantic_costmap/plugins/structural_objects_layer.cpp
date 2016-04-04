@@ -163,7 +163,9 @@ namespace semantic_navigation_layers
   	{
 	    costmap_2d::Costmap2D* master = layered_costmap_->getCostmap();
 
-	    local_costmap_->resizeMap(360.0, 180.0, 0.05, -9.3, -3.78);
+        local_costmap_->resizeMap(300.0, 350.0, 0.05, -7.50, -8.75);
+
+	    //local_costmap_->resizeMap(360.0, 180.0, 0.05, -9.3, -3.78);
 
 
         //so_->matchSize();
@@ -194,9 +196,9 @@ namespace semantic_navigation_layers
     void StructuralObjectsLayer::setParameters(const sem_nav_msgs::LayerConstraints& constraints)
     {
         ROS_INFO_STREAM("Updating StructuralObjectsLayer CONSTRAINTS");
-        //local_costmap_->resizeMap(300.0, 350.0, 0.05, -7.50, -8.75);
+        local_costmap_->resizeMap(300.0, 350.0, 0.05, -7.50, -8.75);
         //local_costmap_->resizeMap(330.0, 160.0, 0.05, -8.375, -3.325);
-        local_costmap_->resizeMap(360.0, 180.0, 0.05, -9.3, -3.78);
+        //local_costmap_->resizeMap(360.0, 180.0, 0.05, -9.3, -3.78); This is for robocup map
         update_ = true;
         io_->setInflationParameters(constraints.inflation_radius, constraints.context_factor);
     }

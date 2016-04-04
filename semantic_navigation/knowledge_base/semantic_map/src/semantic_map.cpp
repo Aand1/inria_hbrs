@@ -362,16 +362,16 @@ void SemanticMap::getObjectDynamic(semantic_map::Object& object)
 
   semantic_map::Object object_temp;
 
-  YAML::Node node = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/dynamic_objects.yaml");
+  YAML::Node node_lo = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/light_objects.yaml");
   //ROS_INFO_STREAM(node1.size());
 
-  for (int count = 0; count < node.size(); count++)
+  for (int count = 0; count < node_lo.size(); count++)
   {
     //object_list_.push_back(node1[count].as<Object>());  
 
-    object_temp = node[count].as<Object>();
+    object_temp = node_lo[count].as<Object>();
 
-    if ( !object_temp.instance.name.compare(object.instance.name) )
+    if ( object_temp.instance.name.compare(object.instance.name) == 0)
     {
       object = object_temp;
 
@@ -392,7 +392,7 @@ void SemanticMap::getObjectsDynamic(std::list<Object>& objects, std::string obje
 
   semantic_map::Object object_temp;
 
-  YAML::Node node = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/dynamic_objects.yaml");
+/*  YAML::Node node = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/dynamic_objects.yaml");
   //ROS_INFO_STREAM(node1.size());
 
   for (int count = 0; count < node.size(); count++)
@@ -410,7 +410,29 @@ void SemanticMap::getObjectsDynamic(std::list<Object>& objects, std::string obje
     }
 
 
-  }   
+  } */ 
+
+  if (  object_type.compare("HeavyObject") == 0 )
+    { 
+        YAML::Node node_ho = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/heavy_objects.yaml");    
+        for (int count = 0; count < node_ho.size(); count++)
+        {
+            object_temp = node_ho[count].as<Object>();
+            objects.push_back(object_temp);
+        }
+    }   
+
+  if (  object_type.compare("LightObject") == 0 )
+    {  
+        YAML::Node node_lo = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/light_objects.yaml"); 
+        for (int count = 0; count < node_lo.size(); count++)
+        {
+            object_temp = node_lo[count].as<Object>();
+            objects.push_back(object_temp);
+        }
+        
+    }    
+ 
 }
 
 std::list<Object>& SemanticMap::getSemanticMapStatic() 
@@ -516,13 +538,13 @@ void SemanticMap::getAllObjects(std::list<Object>& objects)
 
     objects.clear();
 
-    YAML::Node node = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/dynamic_objects.yaml");
+    YAML::Node node_ho = YAML::LoadFile("/home/niranjan/catkin_ws/src/inria_hbrs/semantic_navigation/knowledge_base/semantic_map/data/heavy_objects.yaml");
 
     semantic_map::Object object_temp;
 
-    for (int count = 0; count < node.size(); count++)
+    for (int count = 0; count < node_ho.size(); count++)
     {
-        object_temp = node[count].as<Object>();
+        object_temp = node_ho[count].as<Object>();
         objects.push_back(object_temp); 
     }
 }

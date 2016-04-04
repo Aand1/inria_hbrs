@@ -78,11 +78,11 @@ namespace semantic_navigation_planner
            ROS_INFO("Waiting for the push action server to come up");
         }
 
-    /*    ta_ac = new TapActionClient("tap_action", true);
+        ta_ac = new TapActionClient("tap_action", true);
         while(!ta_ac->waitForServer(ros::Duration(5.0)))
         {
            ROS_INFO("Waiting for the tap action server to come up");
-        }*/
+        }
 
 	}
 
@@ -124,7 +124,7 @@ namespace semantic_navigation_planner
         ////////////////////////////////////////////////////////////////////////////
 
         //bool done = executeCycleOne(new_goal.input.geometric_goal); 
-        bool done = 1;//executeCycleTwo(bp, new_goal.input.geometric_goal);  
+        bool done = executeCycleTwo(bp, new_goal.input.geometric_goal);  
 
         if (done)
         {
@@ -171,7 +171,7 @@ namespace semantic_navigation_planner
 
     bool SemanticPlanner::executeCycleTwo(const sem_nav_msgs::BestPath& bp, const geometry_msgs::PoseStamped& geometric_goal)
     {
-    //    if ( (bp.category.compare("Box") == 0) ) 
+        if ( (bp.category.compare("Box") == 0) ) 
         {
             sem_nav_msgs::PushGoal push_goal;
 
@@ -199,7 +199,7 @@ namespace semantic_navigation_planner
 
         }
 
-    /*    else if ( (bp.category.compare("Ball") == 0) ) 
+        else if ( (bp.category.compare("Ball") == 0) ) 
         {
             sem_nav_msgs::TapGoal tap_goal;
 
@@ -225,7 +225,7 @@ namespace semantic_navigation_planner
             }
           
 
-        }*/
+        }
 
         return true;
 

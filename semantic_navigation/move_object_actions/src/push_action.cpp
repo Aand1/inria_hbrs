@@ -111,7 +111,7 @@ namespace move_object
             size.data = 3;
             std::string name =  "move_object_goals";
             geometry_msgs::Vector3 scale;
-            scale.x = scale.y = 0.1;
+            scale.x = scale.y = 0.14;
             scale.z = 0.01;
             goal_marker = new viz_msgs::VisualizationMarker( name, scale, size );
 
@@ -133,8 +133,14 @@ namespace move_object
 
             as_ = new PushActionServer(ros::NodeHandle(), "push_action", boost::bind(&PushAction::executeCb, this, _1), false);
             as_->start();
+            
+            // Start the costmap
             global_costmap_->startCostmap();
             local_costmap_->start();
+
+            // Stop costmap
+            //global_costmap_->stopCostmap();
+            //local_costmap_->stop();
 
     		initialized_ = true;
 
@@ -158,7 +164,9 @@ namespace move_object
         // initialize the states
         resetState();
 
-
+        // Start the costmap
+        //global_costmap_->startCostmap();
+        //local_costmap_->start();
 
         sem_nav_msgs::PushGoal new_goal = *push_goal;
 
@@ -354,7 +362,7 @@ namespace move_object
 
                 case CONTROL:
                 {
-                /*    ROS_INFO_STREAM("APPROACHOBJECT: CONTROL");
+                    ROS_INFO_STREAM("APPROACHOBJECT: CONTROL");
                     if ( !(goal_monitor_->goalMonitor(approach_goal, tolerance)) )
                     {
 
@@ -365,10 +373,10 @@ namespace move_object
                         tc_->stop();
                         done = true;
                         return true;
-                    }  */
+                    }  
 
-                    done = true;
-                    return true;    
+                    //done = true;
+                    //return true;    
 
                 }
                 break;
@@ -384,7 +392,7 @@ namespace move_object
     {
         bool done = false;
 
-        double tolerance = 0.7;
+        double tolerance = 0.55;
         
         nav_msgs::Path plan;
     //    geometry_msgs::PoseStamped start;
@@ -466,7 +474,7 @@ namespace move_object
                 {
                     ROS_INFO_STREAM("PUSHOBJECT: Control");
 
-/*
+
                     if ( !(goal_monitor_->goalMonitor(move_object, tolerance)) )
                     {
 
@@ -478,13 +486,13 @@ namespace move_object
 
                         // back aside from the object
                         tc_->back();
-                        ros::Duration(1).sleep();
+                        ros::Duration(0.88).sleep();
                         tc_->stop();
                         done = true;
                         return true;
-                    } */
-                    done = true;
-                    return true; 
+                    } 
+                    //done = true;
+                    //return true; 
                     
 
                 }
@@ -520,7 +528,7 @@ namespace move_object
                 {                        
                     ROS_INFO_STREAM("APPROACHGOAL: PLAN");
                     bool gotPlan;
-                    gotPlan = planner_->makePlan(start, reach_goal, *planner_plan_);
+                    gotPlan = planner_->makePlan(robot_pose.geometric_pose, reach_goal, *planner_plan_);
 
                     
 
@@ -577,7 +585,7 @@ namespace move_object
                 case CONTROL:
                 {
                     ROS_INFO_STREAM("APPROACHGOAL: CONTROL");
-                /*    if ( !(goal_monitor_->goalMonitor(reach_goal, tolerance)) )
+                    if ( !(goal_monitor_->goalMonitor(reach_goal, tolerance)) )
                     {
 
                         tc_->sendVelocityCommands();
@@ -587,9 +595,9 @@ namespace move_object
                         tc_->stop();
                         done = true;
                         return true;
-                    } */ 
-                    done = true;
-                    return true;
+                    }  
+                    //done = true;
+                    //return true;
                     
 
                 }
@@ -761,6 +769,7 @@ namespace move_object
             return false;
         }
 
+
         object.instance.name = req.object.instance.name;
         semantic_map_query_->getObjectDynamic(object);
         
@@ -811,7 +820,12 @@ namespace move_object
             resp.plan.poses.push_back(approach_goal_plan[i]); 
         }
 
+        publishPlan(resp.plan, 0);
+
+        ros::Duration(3).sleep();
+
         clearPublish(); 
+
         return true;
 
     }

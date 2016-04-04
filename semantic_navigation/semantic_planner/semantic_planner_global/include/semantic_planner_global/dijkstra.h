@@ -35,8 +35,8 @@
  * Author: Eitan Marder-Eppstein
  *         David V. Lu!!
  *********************************************************************/
-#ifndef SEMANTIC_DIJKSTRA_H
-#define SEMANTIC_DIJKSTRA_H
+#ifndef DIJKSTRA_H
+#define DIJKSTRA_H
 
 #define PRIORITYBUFSIZE 10000
 #include <math.h>
@@ -57,10 +57,10 @@
 #define push_over(n) { if (n>=0 && n<ns_ && !pending_[n] && getCost(costs, n)<lethal_cost_ &&    overEnd_<PRIORITYBUFSIZE){    overBuffer_[   overEnd_++]=n; pending_[n]=true; }}
 
 namespace global_planner {
-class SemanticDijkstra : public Expander {
+class Dijkstra : public Expander {
     public:
-        SemanticDijkstra(costmap_2d::Costmap2D* costmap, PotentialCalculator* p_calc, int nx, int ny);
-        ~SemanticDijkstra();
+        Dijkstra(costmap_2d::Costmap2D* costmap, PotentialCalculator* p_calc, int nx, int ny);
+        ~Dijkstra();
         bool computePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y, int cycles,
                                 float* potential, semantic_map::Object& object);
         bool calculatePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y,
@@ -89,7 +89,8 @@ class SemanticDijkstra : public Expander {
          */
         void updateCell(unsigned char* costs, float* potential, int n, semantic_map::Object& object); /** updates the cell at index n */
 
-        float getCost(unsigned char* costs, int n); 
+        float getCost_copy(unsigned char* costs, int n); 
+	float getCost(unsigned char* costs, int n); 
 
         /** block priority buffers */
         int *buffer1_, *buffer2_, *buffer3_; /**< storage buffers for priority blocks */
@@ -102,7 +103,7 @@ class SemanticDijkstra : public Expander {
         float threshold_; /**< current threshold */
         float priorityIncrement_; /**< priority threshold increment */
 
-	float  polyX[4], polyY[4];
+	double  polyX[4], polyY[4];
         bool  oddNodes_;
         bool inside_, near_;
         int i_, j_, k_, l_;

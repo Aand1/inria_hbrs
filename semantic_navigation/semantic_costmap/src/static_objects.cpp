@@ -78,7 +78,7 @@ namespace semantic_navigation_layers
 
 		semantic_map_query = new semantic_map::SemanticMap(nh_);
 		semantic_map_query->getObjectsStatic(object_list_, object_type_);
-		//ROS_INFO_STREAM(object_list_.size());
+		//ROS_INFO_STREAM(object_list_);
 		
 
 		enabled_ = true;

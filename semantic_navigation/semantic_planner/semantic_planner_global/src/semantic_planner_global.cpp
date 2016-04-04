@@ -261,7 +261,7 @@ bool SemanticPlannerGlobal::makePlanObjectApproach(const geometry_msgs::PoseStam
 
 
     bool found_legal = splanner_->computePotentials(global_costmap_->getCostmap()->getCharMap(), start_x, start_y, goal_x, goal_y,
-                                                    nx * ny * 2, potential_array_, object);
+                                                   nx * ny * 2, potential_array_, object);
 
 
     //publishPotential(potential_array_);
@@ -411,7 +411,7 @@ bool SemanticPlannerGlobal::makePlanObject(const geometry_msgs::PoseStamped& sta
     bool found_legal = splanner_->computePotentials(global_costmap_->getCostmap()->getCharMap(), start_x, start_y, goal_x, goal_y,
                                                     nx * ny * 2, potential_array_, object);
 
-    splanner_->clearEndpoint(costmap_->getCharMap(), potential_array_, goal_x_i, goal_y_i, 2);
+    planner_->clearEndpoint(costmap_->getCharMap(), potential_array_, goal_x_i, goal_y_i, 2);
 
 
     //publishPotential(potential_array_);

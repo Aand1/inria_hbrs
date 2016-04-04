@@ -109,8 +109,8 @@ namespace semantic_planner
         void planCb(const nav_msgs::Path::ConstPtr& plan);
         void triggerCb(const std_msgs::Bool::ConstPtr& trigger);
 
-        //base_local_planner::TrajectoryPlannerROS tp;
-	dwa_local_planner::DWAPlannerROS tp;
+        base_local_planner::TrajectoryPlannerROS tp;
+	    //dwa_local_planner::DWAPlannerROS tp;
 
         //Publishers and subscribers
         ros::Publisher vel_pub_;

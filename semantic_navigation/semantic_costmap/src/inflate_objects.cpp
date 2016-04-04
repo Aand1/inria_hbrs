@@ -91,14 +91,11 @@ namespace semantic_navigation_layers
 	void InflateObjects::updateBounds(double robot_x, double robot_y, double robot_yaw, double* min_x, double* min_y,
                             double* max_x, double* max_y)
 	{
-		/*if (object_type_.compare("StructuralObject") == 0)
-		{
-			semantic_map_query->getObjectsStatic(object_list, object_type_);
-		}
-		else
+		if (object_type_.compare("LightObject") == 0)
 		{
 			semantic_map_query->getObjectsDynamic(object_list, object_type_);
-		}*/
+		}
+		
 
 	    //semantic_map_query->getObjectsStatic(object_list, object_type_);
 		

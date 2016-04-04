@@ -60,7 +60,7 @@
 #include <semantic_planner_global/GlobalPlannerConfig.h>
 #include <semantic_map/Object.h>
 #include <global_planner/dijkstra.h>
-#include <semantic_planner_global/semantic_dijkstra.h>
+#include <semantic_planner_global/dijkstra.h>
 
 
 
@@ -185,8 +185,8 @@ class GlobalPlanner : public nav_core::BaseGlobalPlanner {
         void outlineMap(unsigned char* costarr, int nx, int ny, unsigned char value);
 
         global_planner::PotentialCalculator* p_calc_;
-	global_planner::DijkstraExpansion* planner_;
-        global_planner::SemanticDijkstra* splanner_;
+	    global_planner::DijkstraExpansion* planner_;
+        global_planner::Dijkstra* splanner_;
 	
         global_planner::Traceback* path_maker_;
         global_planner::OrientationFilter* orientation_filter_;

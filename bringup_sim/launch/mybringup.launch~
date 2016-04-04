@@ -6,12 +6,10 @@
 	<include file="$(find gazebo_worlds)/launch/my_world.launch" />
        
         <!-- Launch the robot -->
-	<!--<include file="$(find pioneer3dx)/launch/spawn_robot.launch">
-  	  <arg name="x" value="0"/>
+	<include file="$(find pioneer3dx)/launch/spawn_robot.launch">
+  	  <arg name="x" value="3"/>
   	  <arg name="y" value="0"/>
-          <arg name="yaw" default="0"/>
-	</include> -->
+          <arg name="yaw" default="-3.14"/>
+	</include>
 
-	<!-- Launch the robot -->
-	<include file="$(find mdr_bringup_sim)/robots/cob3-1.launch" >
 </launch>

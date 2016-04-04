@@ -48,7 +48,7 @@
 //#include <semantic_planner_global/quadratic_calculator.h>
 
 //#include <semantic_planner_global/gradient_path.h>
-
+#include <global_planner/dijkstra.h>
 #include <global_planner/astar.h>
 #include <global_planner/grid_path.h>
 #include <global_planner/gradient_path.h> 
@@ -128,7 +128,7 @@ void GlobalPlanner::initialize(std::string name, costmap_2d::Costmap2D* costmap,
         //else
             //planner_ = new AStarExpansion(p_calc_, cx, cy);
 
-	SemanticDijkstra* sde = new SemanticDijkstra(costmap_, p_calc_, cx, cy);
+	    Dijkstra* sde = new Dijkstra(costmap_, p_calc_, cx, cy);
         if(!old_navfn_behavior_)
             sde->setPreciseStart(true);
         splanner_ = sde;

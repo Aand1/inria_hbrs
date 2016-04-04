@@ -144,6 +144,8 @@ namespace semantic_navigation_layers
 	    double transform_tolerance;
 	    bool rolling_window_, current_;
 
+      std::list<semantic_map::Object> object_list_;
+
       
 	};
 

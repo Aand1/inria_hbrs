@@ -33,7 +33,7 @@ include_directories(
 )
 
 add_library(semantic_planner_global 
-  src/semantic_dijkstra.cpp
+  src/dijkstra.cpp
   src/planner_core.cpp
   src/semantic_planner_global.cpp
   

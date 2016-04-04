@@ -3,10 +3,22 @@
 
 	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
 	<!-- send chair_wicker urdf to param server -->
-    	<param name="chair" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/chair_wicker.urdf" />
+    	<param name="chair" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/chair_wicker.urdf" /> 
 
 	<!-- spawn uploaded wall model -->
-    	<node name="spawn_chair" pkg="gazebo_ros" type="spawn_model" args="-urdf -param chair  -x 5.0 -y 2.0 -z 0.01 -R 0 -P 0 -Y 0.785 -model chair1" respawn="false" output="screen" />
+    	<node name="spawn_chair" pkg="gazebo_ros" type="spawn_model" args="-urdf -param chair  -x 4.4274 -y 1.9127 -z 0.01 -R 0 -P 0 -Y 0.785 -model chair1" respawn="false" output="screen" />
+
+	<!-- ////////////////////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- send corrogated_box urdf to param server -->
+        <param name="corrogated_box" command="$(find xacro)/xacro.py $(find hbrs_gazebo_objects)/objects/corrogated_box.urdf" />
+	
+    	<!-- spawn uploaded corrogated_box model -->
+    	 <node name="spawn_corrogated_box1" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 1.7709 -y 1.5749 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box1" respawn="false" output="screen" /> 
+    	<!--<node name="spawn_corrogated_box2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 5.46 -y -1.05 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box2" respawn="false" output="screen" /> -->
+        <node name="spawn_corrogated_box2" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 1.5278 -y -1.0890 -z 0.01 -R 0 -P 0 -Y 0 -model corrogated_box2" respawn="false" output="screen" />
+
+        <node name="spawn_corrogated_box3" pkg="gazebo_ros" type="spawn_model" args="-urdf -param corrogated_box  -x 4.5185 -y -1.3703 -z 0.01 -R 0 -P 0 -Y 2.3688 -model corrogated_box3" respawn="false" output="screen" />
+        
 
 	
 </launch>

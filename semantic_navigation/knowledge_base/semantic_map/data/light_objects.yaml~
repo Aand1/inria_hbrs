@@ -1,0 +1,66 @@
+- instance: corrogated_box1
+  semantics:
+    semantic_positions:
+      position-2:
+        - 1.45
+        - 1.6
+        - 0
+      position-1:
+        - 1
+        - 1.08
+        - 0
+      position-3:
+        - 1
+        - 2.11
+        - 0
+      position-5:
+        - 1.45
+        - 1.08
+        - 0
+      position-4:
+        - 0.54
+        - 1.6
+        - 0
+      position-6:
+        - 1.45
+        - 2.11
+        - 0
+      position-7:
+        - 0.54
+        - 2.11
+        - 0
+      position-8:
+        - 0.54
+        - 1.08
+        - 0
+    sub_category: Box
+    category: LightObject
+    affordance: Push
+  geometry:
+    pose:
+      orientation:
+        x: 0
+        w: 0.99
+        z: 0
+        y: 0
+      position:
+        y: 1.6
+        x: 1
+        z: 0.21
+    bounding_box:
+      vertex-2:
+        - 1.4
+        - 1.14
+        - 0
+      vertex-4:
+        - 0.59
+        - 2.05
+        - 0
+      vertex-3:
+        - 1.39
+        - 2.06
+        - 0
+      vertex-1:
+        - 0.6
+        - 1.13
+        - 0

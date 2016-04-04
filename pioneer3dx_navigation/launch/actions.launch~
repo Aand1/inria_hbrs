@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<launch>
+
+	<node pkg="move_robot_action" type="move_robot_action_node" respawn="false" name="move_robot_action" output="screen" clear_params="true" >
+       
+    		<rosparam file="$(find move_robot_action)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find move_robot_action)/config/global_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_robot_action)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find move_robot_action)/config/local_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_robot_action)/config/base_local_planner_params.yaml" command="load" /> 
+
+
+		<remap from="/move_robot_action/global_costmap/costmap" to="/global_costmap/costmap" />
+                <remap from="/move_robot_action/global_costmap/costmap_updates" to="/global_costmap/costmap_updates" />
+  	</node>
+
+        <node pkg="move_object_actions" type="push_action_node" respawn="false" name="push_action" output="screen" clear_params="true" > 
+       
+    		<rosparam file="$(find move_object_actions)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find move_object_actions)/config/global_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_object_actions)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find move_object_actions)/config/local_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_object_actions)/config/base_local_planner_params.yaml" command="load" /> 
+
+		
+		<remap from="/push_action/global_costmap/costmap" to="/global_costmap/costmap" />
+                <remap from="/push_action/global_costmap/costmap_updates" to="/global_costmap/costmap_updates" />		
+               
+  	</node>
+
+        <node pkg="move_object_actions" type="tap_action_node" respawn="false" name="tap_action" output="screen" clear_params="true" > 
+       
+    		<rosparam file="$(find move_object_actions)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+		<rosparam file="$(find move_object_actions)/config/global_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_object_actions)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+		<rosparam file="$(find move_object_actions)/config/local_costmap_params.yaml" command="load" />
+
+		<rosparam file="$(find move_object_actions)/config/base_local_planner_params.yaml" command="load" /> 
+
+		
+		<remap from="/push_action/global_costmap/costmap" to="/global_costmap/costmap" />
+                <remap from="/push_action/global_costmap/costmap_updates" to="/global_costmap/costmap_updates" />		
+               
+  	</node>
+        
+
+
+        
+</launch>
+

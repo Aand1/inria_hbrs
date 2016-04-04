@@ -78,6 +78,8 @@ namespace semantic_navigation_layers
 	      default_value_ = FREE_SPACE;
 
 	    semantic_map_query = new semantic_map::SemanticMap(nh_);
+	    semantic_map_query->getObjectsDynamic(object_list_, object_type_);
+	    //ROS_INFO_STREAM(object_list_.size());
 
 	    current_ = true;
 	    enabled_ = true;
@@ -276,10 +278,12 @@ namespace semantic_navigation_layers
 	{
 		
         //matchSize();       
-		std::list<semantic_map::Object> object_list_;
 		//ROS_INFO_STREAM(object_type);
 
-		semantic_map_query->getObjectsDynamic(object_list_, object_type_);
+		if (object_type_.compare("LightObject") == 0)
+		{
+			semantic_map_query->getObjectsDynamic(object_list_, object_type_);
+		}
 		
 		useExtraBounds(min_x, min_y, max_x, max_y);
     
@@ -519,7 +523,7 @@ namespace semantic_navigation_layers
   	void DynamicObjects::updateCosts(costmap_2d::Costmap2D& master_grid, int min_i, int min_j, int max_i, int max_j) 
   	{
     	//updateWithMax(master_grid, min_i, min_j, max_i, max_j);
-    	//updateWithOverwrite(master_grid, min_i, min_j, max_i, max_j);
+    	updateWithOverwrite(master_grid, min_i, min_j, max_i, max_j);
         
 
   	}

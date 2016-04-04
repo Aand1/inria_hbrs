@@ -619,7 +619,9 @@ bool MoveRobotAction::planService(nav_msgs::GetPlan::Request &req, nav_msgs::Get
       return false;
     }
 
+    // Start actively updating costmaps based on sensor data
     global_costmap_->startCostmap();
+    //local_costmap_->start();
 
     //make sure we have a costmap for our planner
     if(global_costmap_ == NULL)

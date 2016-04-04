@@ -93,7 +93,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
   maxx_ = maxy_ = -1e30;
 
   //////////////////////////////////////////////////////////////////
-  /*double wx, wy;
+/*  double wx, wy;
   unsigned int x_, y_;
   x_ = costmap_.getSizeInMetersX();
   y_ =costmap_.getSizeInMetersY();

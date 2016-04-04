@@ -51,7 +51,7 @@
 #include <semantic_planner_global/planner_core.h>
 #include <string> 
 #include <global_planner/potential_calculator.h> 
-//#include <semantic_planner_global/semantic_dijkstra.h>
+//#include <semantic_planner_global/dijkstra.h>
 #include <sem_nav_msgs/GetPlanObject.h> 
 
 

@@ -35,7 +35,7 @@
  * Author: Eitan Marder-Eppstein
  *         David V. Lu!!
  *********************************************************************/
-#include <semantic_planner_global/semantic_dijkstra.h>
+#include <semantic_planner_global/dijkstra.h>
 #include <algorithm>
 
 #include <boost/geometry.hpp>
@@ -47,7 +47,7 @@ typedef boost::geometry::model::polygon<point_type> polygon_type;
 
 namespace global_planner {
 
-SemanticDijkstra::SemanticDijkstra(costmap_2d::Costmap2D* costmap, PotentialCalculator* p_calc, int nx, int ny) :
+Dijkstra::Dijkstra(costmap_2d::Costmap2D* costmap, PotentialCalculator* p_calc, int nx, int ny) :
         Expander(p_calc, nx, ny), pending_(NULL), precise_(false), costmap_(costmap) {
     // priority buffers
     buffer1_ = new int[PRIORITYBUFSIZE];
@@ -57,7 +57,7 @@ SemanticDijkstra::SemanticDijkstra(costmap_2d::Costmap2D* costmap, PotentialCalc
     priorityIncrement_ = 2 * neutral_cost_;
 }
 
-SemanticDijkstra::~SemanticDijkstra() {
+Dijkstra::~Dijkstra() {
   delete[] buffer1_;
   delete[] buffer2_;
   delete[] buffer3_;
@@ -68,7 +68,7 @@ SemanticDijkstra::~SemanticDijkstra() {
 //
 // Set/Reset map size
 //
-void SemanticDijkstra::setSize(int xs, int ys) {
+void Dijkstra::setSize(int xs, int ys) {
     Expander::setSize(xs, ys);
     if (pending_)
         delete[] pending_;
@@ -85,7 +85,7 @@ void SemanticDijkstra::setSize(int xs, int ys) {
 //   or until the Start cell is found (atStart = true)
 //
 
-bool SemanticDijkstra::computePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y,
+bool Dijkstra::computePotentials(unsigned char* costs, double start_x, double start_y, double end_x, double end_y,
                                            int cycles, float* potential, semantic_map::Object& object) {
    
     object = object;
@@ -200,14 +200,14 @@ bool SemanticDijkstra::computePotentials(unsigned char* costs, double start_x, d
 
 #define INVSQRT2 0.707106781
 
-inline void SemanticDijkstra::updateCell(unsigned char* costs, float* potential, int n, semantic_map::Object& object) {
+inline void Dijkstra::updateCell(unsigned char* costs, float* potential, int n, semantic_map::Object& object) {
     cells_visited_++;
 
     // do planar wave update
     float c = getCost(costs, n);
 
-        //if (c >= (lethal_cost_ + 3) )    // don't propagate into obstacles
-    //    return;
+    if (c > 50.0 )    // don't propagate into obstacless
+        return;
     //else
     //    c = 50.0;
     
@@ -246,36 +246,42 @@ inline void SemanticDijkstra::updateCell(unsigned char* costs, float* potential,
     }
 }
 
-bool SemanticDijkstra::isMovableObject(int n, semantic_map::Object& object)
+bool Dijkstra::isMovableObject(int n, semantic_map::Object& object)
 { 
     //ROS_INFO_STREAM(object);	
     polygon_type poly;
 
     unsigned int mx_, my_; // associated map coordinates of the costmap index under consideration.
-    unsigned int omx_, omy_; // associated map coordinates of the object bounding box descibed in world coordinates.
+    //unsigned int omx_, omy_; // associated map coordinates of the object bounding box descibed in world coordinates.
+    double omx_, omy_;
     double owx_, owy_; // world coordinates of the object to be converted into world coordinates.
     
-    costmap_->indexToCells(n, mx_, my_); 
+    costmap_->indexToCells(n, mx_, my_);
+    costmap_->mapToWorld(mx_, my_, omx_, omy_); 
 
     for (l_ = 0; l_ < 4; l_++) 
     {
-        owx_ = object.geometry.bounding_box.vertices[l_].x;
-        owy_ =  object.geometry.bounding_box.vertices[l_].y;
+        //owx_ = object.geometry.bounding_box.vertices[l_].x;
+        //owy_ =  object.geometry.bounding_box.vertices[l_].y;
 
-        costmap_->worldToMap(owx_, owy_, omx_, omy_);
+        //costmap_->worldToMap(owx_, owy_, omx_, omy_);
 
-        polyX[l_] = omx_;
-        polyY[l_] = omy_;
-
+        //polyX[l_] = omx_;
+       // polyY[l_] = omy_;
         //ROS_INFO_STREAM(polyX[l_]);
         //ROS_INFO_STREAM(polyY[l_]);
 	//ROS_INFO_STREAM("---------------------");
+	polyX[l_] = object.geometry.bounding_box.vertices[l_].x;
+        polyY[l_] = object.geometry.bounding_box.vertices[l_].y;
+
 	
 
         poly.outer().push_back(point_type(omx_,omy_));
 
         
     }
+
+    
     
     inside_ = false;
     near_ = false;  
@@ -284,10 +290,10 @@ bool SemanticDijkstra::isMovableObject(int n, semantic_map::Object& object)
       
     for (i_=0; i_<4; i_++) 
     {
-        if ( (polyY[i_] < my_ && polyY[j_] >= my_ || polyY[j_] < my_ && polyY[i_] >= my_)
-           &&  (polyX[i_] <= mx_ || polyX[j_] <= mx_) ) 
+        if ( (polyY[i_] < omy_ && polyY[j_] >= omy_ || polyY[j_] < omy_ && polyY[i_] >= omy_)
+           &&  (polyX[i_] <= omx_ || polyX[j_] <= omx_) ) 
         {
-            if (polyX[i_]+(my_-polyY[i_])/(polyY[j_]-polyY[i_])*(polyX[j_]-polyX[i_]) < mx_) 
+            if (polyX[i_]+(omy_-polyY[i_])/(polyY[j_]-polyY[i_])*(polyX[j_]-polyX[i_]) < omx_) 
             {
                 oddNodes_ = !oddNodes_; 
             }
@@ -305,10 +311,10 @@ bool SemanticDijkstra::isMovableObject(int n, semantic_map::Object& object)
     point_type p(mx_,my_);
 
     double distance = boost::geometry::distance(p, poly);
-
-    if (distance <= 30.0)
+    //ROS_INFO_STREAM(distance);	
+    if (distance <=0.1)
         near_ = true;
-        //ROS_INFO_STREAM("INSIDE");
+        
 
     bool result = (inside_ || near_);
     //ROS_INFO_STREAM(result);
@@ -317,7 +323,32 @@ bool SemanticDijkstra::isMovableObject(int n, semantic_map::Object& object)
   
 }
 
-float SemanticDijkstra::getCost(unsigned char* costs, int n) {
+
+float  Dijkstra::getCost(unsigned char* costs, int n) {
+            float c = costs[n];
+
+	    if (isMovableObject(n, object))
+            {
+              c = neutral_cost_;
+	      return c;	
+            }
+
+            else
+	    {		 
+		    if (c < lethal_cost_ - 1 || (unknown_ && c==255)) {
+		        c = c * factor_ + neutral_cost_;
+		        if (c >= lethal_cost_)
+		            c = lethal_cost_ - 1;
+		        return c;
+		    }
+            }
+  
+            return lethal_cost_;
+        }
+
+
+
+float Dijkstra::getCost_copy(unsigned char* costs, int n) {
             float c = costs[n];
             
 
@@ -336,7 +367,7 @@ float SemanticDijkstra::getCost(unsigned char* costs, int n) {
                 c = c * factor_ + neutral_cost_;
                 if (c >= lethal_cost_)
                     c = lethal_cost_ - 1;
-                //return c;
+                return c;
             }
             			 
             
@@ -349,11 +380,12 @@ float SemanticDijkstra::getCost(unsigned char* costs, int n) {
 	    else 
             {
 		c = lethal_cost_;
+		return c;
             }
             
 
             //return lethal_cost_;
-            return c;
+            //return c;
             
             
 	   /* if (c > 1.0 && c < 255)

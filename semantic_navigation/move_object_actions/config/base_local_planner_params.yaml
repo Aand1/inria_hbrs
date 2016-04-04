@@ -6,8 +6,8 @@ TrajectoryPlannerROS:
   min_vel_theta: -0.3
   #max_rotational_vel: 1.5
   min_in_place_vel_theta: 0.2
-  acc_lim_theta: 2
-  acc_lim_x: 2
+  acc_lim_theta: 2.3
+  acc_lim_x: 2.3
   acc_lim_y: 2
 
   holonomic_robot: true
@@ -19,8 +19,8 @@ TrajectoryPlannerROS:
   heading_lookahead: 0.325
   oscillation_reset_dist: 0.25
 
-  vx_samples: 25
-  vtheta_samples: 25
+  vx_samples: 20
+  vtheta_samples: 15
 #  dwa: false
 
 

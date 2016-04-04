@@ -148,7 +148,7 @@ namespace semantic_navigation_planner
 
                     int index =0;
                     //publishGoalsObject(push_action_srv.response.goals);
-                    publishPlan(path_plan, index);
+                    //publishPlan(path_plan, index);
                 }
             }
 
@@ -174,12 +174,12 @@ namespace semantic_navigation_planner
 
                     int index =0;
                     //publishGoalsObject(push_action_srv.response.goals);
-                    publishPlan(path_plan, index);
+                    //publishPlan(path_plan, index);
                 }
             }
         }
 
-        if(move_robot_client.call(move_robot_srv))
+    /*    if(move_robot_client.call(move_robot_srv))
         {
                     
             path_plan = move_robot_srv.response.plan;
@@ -195,7 +195,9 @@ namespace semantic_navigation_planner
             int index = 2;
                     //publishGoalsObject(push_action_srv.response.goals);
             publishPlan(path_plan, index);
-        }
+            ros::Duration(5).sleep();
+            clearPublish();
+        }*/
 
         best_path.cost.data = 1000;
 
@@ -244,8 +246,8 @@ namespace semantic_navigation_planner
 
         
 
-        ros::Duration(2).sleep();
-        clearPublish();
+        ros::Duration(5).sleep();
+        //clearPublish();
 
 /*        std_msgs::String goal_object;       
 
